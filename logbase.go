@@ -13,6 +13,7 @@ var curDir string
 var srcFile string
 var hud string
 var panelTree []string
+var paramLines []int
 
 func locationCheck() bool {
 	// Check if program is in the right directory
@@ -80,7 +81,19 @@ func main() {
 	}
 	fmt.Println(panelTree)
 
+	// Clear input buffer
+	var clear string
+	fmt.Scanln(&clear)
+
 	// Get parameter(s)
+	getParamPassed := false
+	for (!getParamPassed) {
+		panelTree, paramLines, getParamPassed = getParam(panelTree)
+		if !getParamPassed {
+			fmt.Println("Please try again.")
+		}
+	}
+	fmt.Println(panelTree, paramLines)
 
 	// Get value
 

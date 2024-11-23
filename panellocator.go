@@ -7,11 +7,9 @@ import (
 	"strings"
 )
 
-var panel string
-var param string
-
 func getPanel() []string {
 	// Get panel
+	var panel string
 	fmt.Print("Enter name of panel: ")
 	fmt.Scanln(&panel)
 
@@ -19,11 +17,11 @@ func getPanel() []string {
 	file, err := os.Open(srcFile)
 	if err != nil {
 		fmt.Println("Error opening source file:", err)
-		return nil
+		os.Exit(1)
 	}
 	defer file.Close()
 
-	// Find panel
+	// Scan file for matches
 	count := 0
 	level := 0
 	var prevWord string
@@ -32,7 +30,7 @@ func getPanel() []string {
 	var panelTree []string
 	scnr := bufio.NewScanner(file)
 
-	// Scan file for matches
+	// Find panel
 	for scnr.Scan() {
 		line := scnr.Text()
 		words := strings.Fields(line)
@@ -155,4 +153,53 @@ func getPanel() []string {
 	}
 
 	return nil
+}
+
+func getParam(tree []string) ([]string, []int, bool) {
+
+	// Get parameter
+	var param string
+	fmt.Print("Enter parameter to customize: ")
+	fmt.Scanln(&param)
+
+	// Open source file
+	file, err := os.Open(srcFile)
+	if err != nil {
+		fmt.Println("Error opening source file:", err)
+		os.Exit(1)
+	}
+	defer file.Close()
+
+	// Scan to panel
+	var lines []int
+	var isParent bool
+	lineNum := 1
+	level := 0
+	scnr := bufio.NewScanner(file)
+	
+	for scnr.Scan() {
+		line := scnr.Text()
+
+		if strings.Contains(line, "{") { // Count nested level
+			level++
+		}
+		if level > 0 && level <= len(tree) && strings.Contains(line, tree[level-1]) { // Navigate through tree
+			isParent = true
+		} else if level == len(tree)+1 && isParent && strings.Contains(line, "\""+param+"\"") { // Parameter found in correct panel
+			tree = append(tree, param)
+			lines = append(lines, lineNum)
+			return tree, lines, true
+		} 
+		if strings.Contains(line, "}") { // Track tree status and nested level
+			isParent = false
+			level--
+		}
+
+		// Track line number
+		lineNum++
+	}
+	
+	// No match
+	fmt.Println("Did not find parameter:", param)
+	return tree, lines, false
 }
