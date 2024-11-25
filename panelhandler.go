@@ -203,3 +203,15 @@ func getParam(tree []string) ([]string, []int, bool) {
 	fmt.Println("Did not find parameter:", param)
 	return tree, lines, false
 }
+
+func getValue(tree []string) ([]string) {
+	// Get value
+	var value string
+	fmt.Printf("Enter value for %v: ", tree[len(tree)-1])
+	fmt.Scanln(&value)
+
+	// Add value to tree
+	tree = append(tree, value)
+	
+	return tree
+}
