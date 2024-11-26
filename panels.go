@@ -131,19 +131,13 @@ func getPanel() []string {
 		}
 
 		// Recieve user selection
-		option := 0
-		fmt.Print("Please select an option: ")
-		for {
-			var err error
-			_, err = fmt.Scanf("%d", &option)
-			if err != nil || option < 1 || option > count {
-				fmt.Printf("Please make a selection 1 - %v:\n", count)
-
-				// Discard input
-				var d string
-				fmt.Scanln(&d)
-			} else {
-				break
+		var option int
+		for option < 1 || option > count {
+			fmt.Print("Please select an option: ")
+			fmt.Scanln(&option)
+			if option < 1 || option > count {
+				fmt.Printf("Please make a selection 1 - %v: ", count)
+				option = 0
 			}
 		}
 
@@ -155,12 +149,14 @@ func getPanel() []string {
 	return nil
 }
 
-func getParam(tree []string) ([]string, []int, bool) {
+func getParam(tree []string, lines []int) ([]string, []int, bool) {
 
 	// Get parameter
 	var param string
 	fmt.Print("Enter parameter to customize: ")
-	fmt.Scanln(&param)
+	// Use buffered reader because Scanln sucks
+	param, _ = reader.ReadString('\n') // Read to newline
+	param = strings.TrimSpace(param) // Remove newline
 
 	// Open source file
 	file, err := os.Open(srcFile)
@@ -171,7 +167,6 @@ func getParam(tree []string) ([]string, []int, bool) {
 	defer file.Close()
 
 	// Scan to panel
-	var lines []int
 	var isParent bool
 	lineNum := 1
 	level := 0
@@ -183,9 +178,9 @@ func getParam(tree []string) ([]string, []int, bool) {
 		if strings.Contains(line, "{") { // Count nested level
 			level++
 		}
-		if level > 0 && level <= len(tree) && strings.Contains(line, tree[level-1]) { // Navigate through tree
+		if level > 0 && level <= len(panelTree) && strings.Contains(line, panelTree[level-1]) { // Navigate through tree
 			isParent = true
-		} else if level == len(tree)+1 && isParent && strings.Contains(line, "\""+param+"\"") { // Parameter found in correct panel
+		} else if level == len(panelTree)+1 && isParent && strings.Contains(line, "\""+param+"\"") { // Parameter found in correct panel
 			tree = append(tree, param)
 			lines = append(lines, lineNum)
 			return tree, lines, true
@@ -208,7 +203,9 @@ func getValues(tree []string, curNum int, numValues int) ([]string) {
 	// Get values
 	var value string
 	fmt.Printf("Enter value for %v (%v/%v): ", tree[len(tree)-1], curNum+1, numValues)
-	fmt.Scanln(&value)
+	// Use buffered reader because Scanln sucks
+	value, _ = reader.ReadString('\n') // Read to newline
+	value = strings.TrimSpace(value) // Remove newline
 
 	// Add value to tree
 	tree = append(tree, value)

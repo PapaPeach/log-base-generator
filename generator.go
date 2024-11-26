@@ -41,44 +41,50 @@ func generateConfig() {
 	file.WriteString("\n")
 
 	// Create save aliases
+	saveAlias := prefix + "_" + customizationName + "_dump"
 	file.WriteString("//Declare customization save aliases\n")
-	file.WriteString("alias " + prefix + "_" + strings.ToLower(customizations[0][len(customizations[0])-3] + customizations[0][len(customizations[0])-2]) + "_dump \"\"\n")
+	file.WriteString("alias " + saveAlias + " \"\"\n")
 	file.WriteString("\n")
 
 	// Create default value aliases
 	var defaultAlias string
 	defaultBraceCount := 0
-	for i := 0; i < len(customizations[0])-2; i++ {
+	for i := 0; i < len(customizations[0])-(2*numParam); i++ {
 		defaultAlias += customizations[0][i] + "{"
 		defaultBraceCount++
 	}
 	// Parameter and value
-	defaultAlias += customizations[0][len(customizations[0])-2] + " " + customizations[0][len(customizations[0])-1]
+	defaultAlias += strings.Join(customizations[0][len(customizations[0])-(2*numParam):], " ")
 	//Close braces
 	for j := 0; j < defaultBraceCount; j++ {
 		defaultAlias += "}"
 	}
+	writeAlias := prefix + "_" + customizationName + "_write"
 	file.WriteString("//Initialize default values\n")
-	file.WriteString("alias " + prefix + "_" + strings.ToLower(customizations[0][len(customizations[0])-3] + customizations[0][len(customizations[0])-2]) + "_write \"echo " + defaultAlias + "\"\n")
+	file.WriteString("alias " + writeAlias + " \"echo " + defaultAlias + "\"\n")
 	file.WriteString("\n")
 
 	// Create customization definitions
+	// saveAlias [value];writeAlias [value]
 	file.WriteString("//Define customization aliases\n")
 	for i := range customizations {
+		customizationAlias := customizationName + strconv.Itoa(i+1)
 		var alias string
 		braceCount := 0
 		// Panel path
-		for j := 0; j < len(customizations[i])-2; j++ {
+		for j := 0; j < len(customizations[i])-(2*numParam); j++ {
 			alias += customizations[i][j] + "{"
 			braceCount++
 		}
 		// Parameter and value
-		alias += customizations[i][len(customizations[i])-2] + " " + customizations[i][len(customizations[i])-1]
+		alias += strings.Join(customizations[i][len(customizations[i])-(2*numParam):], " ")
 		//Close braces
-		for k := 0; k < braceCount; k++ {
+		for j := 0; j < braceCount; j++ {
 			alias += "}"
 		}
 
-		file.WriteString("alias " + strings.ToLower(customizations[0][len(customizations[0])-3] + customizations[0][len(customizations[0])-2]) + strconv.Itoa(i+1) + "_write \"echo " + alias + "\"\n")
+		file.WriteString("alias " + customizationAlias + 
+						" \"alias " + saveAlias + " echo " + customizationAlias + 
+						";alias " + writeAlias + " echo " + alias + "\"\n")
 	}
 }
