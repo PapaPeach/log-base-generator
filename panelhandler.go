@@ -204,10 +204,10 @@ func getParam(tree []string) ([]string, []int, bool) {
 	return tree, lines, false
 }
 
-func getValue(tree []string) ([]string) {
-	// Get value
+func getValues(tree []string, curNum int, numValues int) ([]string) {
+	// Get values
 	var value string
-	fmt.Printf("Enter value for %v: ", tree[len(tree)-1])
+	fmt.Printf("Enter value for %v (%v/%v): ", tree[len(tree)-1], curNum+1, numValues)
 	fmt.Scanln(&value)
 
 	// Add value to tree

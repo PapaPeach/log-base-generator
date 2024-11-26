@@ -71,10 +71,15 @@ func main() {
 		return
 	}
 	fmt.Println("Program passed location check.")
+	fmt.Println()
 
 	// Validate source file
-	if !getSourceFile() {
-		return
+	getSourceFilePassed := false
+	for !getSourceFilePassed {
+		getSourceFilePassed = getSourceFile()
+		if !getSourceFilePassed {
+			fmt.Println("Please try again.")
+		}
 	}
 
 	// Get panel tree
@@ -82,7 +87,8 @@ func main() {
 	if panelTree == nil {
 		return
 	}
-	fmt.Println(panelTree)
+	fmt.Println()
+	//fmt.Println(panelTree)
 
 	// Clear input buffer
 	var clear string
@@ -96,30 +102,37 @@ func main() {
 			fmt.Println("Please try again.")
 		}
 	}
-	fmt.Println(panelTree, paramLines)
+	//fmt.Println(panelTree, paramLines)
 
-	// Get value(s)
-	valuesDone := false
-	for !valuesDone {
+	// Get total number of values
+	numValues := 0
+	for numValues < 2 {
+		fmt.Print("Enter quantity of values to set: ")
+		fmt.Scan(&numValues)
+	}
+	// Clear input buffer
+	fmt.Scanln(&clear)
+	// Get values
+	for i := 0; i < numValues; i++ {
 		newCustomization := make([]string, len(panelTree))
 		copy(newCustomization, panelTree)
-		customizations = append(customizations, getValue(newCustomization))
-		if !valuesDone {
+		customizations = append(customizations, getValues(newCustomization, i, numValues))
+		/*if !valuesDone {
 			var response string
 			fmt.Print("Add additional value? [Y] / [N]: ")
 			fmt.Scanln(&response)
 			if !strings.EqualFold(response, "y") {
 				valuesDone = true
 			}
-		}
+		}*/
 	}
 	for i := range customizations {
-		fmt.Println(i, ": ", customizations[i])
+		fmt.Println(i, ":", customizations[i])
 	}
-
-	// Set default value
 	
 	// Some way of handling "tied" customization options. IE - multiple param and values in a single option
+
+	// Set default value
 
 	// Ask if user has more panels they'd like to edit in srcFile. Y = loop, N = break
 
