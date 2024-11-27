@@ -149,7 +149,7 @@ func getPanel() []string {
 	return nil
 }
 
-func getParam(tree []string, lines []int) ([]string, []int, bool) {
+func getParam(tree []string) ([]string, bool) {
 
 	// Get parameter
 	var param string
@@ -157,6 +157,16 @@ func getParam(tree []string, lines []int) ([]string, []int, bool) {
 	// Use buffered reader because Scanln sucks
 	param, _ = reader.ReadString('\n') // Read to newline
 	param = strings.TrimSpace(param) // Remove newline
+
+	// Check for previous instance of parameter
+	if numParam > 1 {
+		for i := len(customizations[0])-(2*numParam); i < len(customizations[0]); i += 2 {
+			if strings.EqualFold(param, customizations[0][i]) {
+				fmt.Printf("Previous instance of: \"%v\" found.\n", param)
+				return tree, false
+			}
+		}
+	}
 
 	// Open source file
 	file, err := os.Open(srcFile)
@@ -182,8 +192,8 @@ func getParam(tree []string, lines []int) ([]string, []int, bool) {
 			isParent = true
 		} else if level == len(panelTree)+1 && isParent && strings.Contains(line, "\""+param+"\"") { // Parameter found in correct panel
 			tree = append(tree, param)
-			lines = append(lines, lineNum)
-			return tree, lines, true
+			paramLines = append(paramLines, lineNum)
+			return tree, true
 		} 
 		if strings.Contains(line, "}") { // Track tree status and nested level
 			isParent = false
@@ -196,7 +206,7 @@ func getParam(tree []string, lines []int) ([]string, []int, bool) {
 	
 	// No match
 	fmt.Println("Did not find parameter:", param)
-	return tree, lines, false
+	return tree, false
 }
 
 func getValues(tree []string, curNum int, numValues int) ([]string) {

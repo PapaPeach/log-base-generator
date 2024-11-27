@@ -105,12 +105,14 @@ func main() {
 		getParamPassed := false
 		for !getParamPassed {
 			if numParam == 1 { // Only one parameter
-				customizationTree, paramLines, getParamPassed = getParam(panelTree, paramLines)
+				customizationTree, getParamPassed = getParam(panelTree)
 			} else { // Additional parameters
 				var tempTree []string
-				tempTree, paramLines, getParamPassed = getParam(customizationTree, paramLines)
-				for i := 0; i < len(customizations); i++ {
-					customizations[i] = append(customizations[i], tempTree[len(tempTree)-1])
+				tempTree, getParamPassed = getParam(customizationTree)
+				if getParamPassed == true {
+					for i := 0; i < len(customizations); i++ {
+						customizations[i] = append(customizations[i], tempTree[len(tempTree)-1])
+					}
 				}
 			}
 			if !getParamPassed { // Parameter not found
@@ -141,9 +143,9 @@ func main() {
 				customizations[i] = getValues(customizations[i], i, numValues)
 			}
 		}
-		for i := range customizations {
-			fmt.Println(i, ":", customizations[i])
-		}
+		/*for i := range customizations {
+			fmt.Println(i+1, ":", customizations[i])
+		}*/
 
 		// Ask for more parameters
 		var response string
@@ -250,6 +252,6 @@ func main() {
 
 	// Comment srcFile panel lines
 	if autoComment == true {
-
+		commentSource()
 	}
 }

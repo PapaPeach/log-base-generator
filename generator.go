@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -86,5 +87,46 @@ func generateConfig() {
 		file.WriteString("alias " + customizationAlias + 
 						" \"alias " + saveAlias + " echo " + customizationAlias + 
 						";alias " + writeAlias + " echo " + alias + "\"\n")
+	}
+}
+
+func commentSource() {
+	// Open source file
+	inputFile, err := os.Open(srcFile)
+	if err != nil {
+		fmt.Println("Error opening source file for reading comments:", err)
+		os.Exit(1)
+	}
+	defer inputFile.Close()
+	
+	// Create slice containing all the lines and add comments to necessary lines
+	var fileContents []string
+	lineNum := 1
+	paramLinesIndex := 0
+	scnr := bufio.NewScanner(inputFile)
+	for scnr.Scan() {
+		line := scnr.Text()
+		if paramLinesIndex < len(paramLines) && lineNum == paramLines[paramLinesIndex] { // If line is to be commented
+			commented := "//lb" + line
+			fileContents = append(fileContents, commented)
+			paramLinesIndex++
+		} else { // Non-commented lines
+			fileContents = append(fileContents, line)
+		}
+		lineNum++
+	}
+	
+	// Rewrite file with comments
+	outputFile, err := os.Create(srcFile)
+	if err != nil {
+		fmt.Println("Error opening file for writing comments:", err)
+	}
+	defer outputFile.Close()
+
+	for i := range fileContents {
+		outputFile.WriteString(fileContents[i])
+		if i < len(fileContents)-1 {
+			outputFile.WriteString("\n")
+		}
 	}
 }
