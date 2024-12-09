@@ -9,17 +9,17 @@ import (
 	"strings"
 )
 
-func generateConfig() {
+func generateMainConfig() {
 	// Open or create file
 	var fileExists bool
 	if _, err := os.Stat("cfg/"+prefix+".cfg"); err == nil { // Handle file already exists
-		fmt.Println("File exists.")
+		fmt.Println("Main config file exists.")
 		fileExists = true
 		// TODO
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fileExists = false
 	} else { // Oh shit
-		fmt.Println("File is inaccessible!")
+		fmt.Println("Main config file is inaccessible!")
 		os.Exit(1)
 	}
 
@@ -30,7 +30,7 @@ func generateConfig() {
 	// Create main alias file
 	file, err := os.Create("cfg/"+prefix+".cfg")
 	if err != nil {
-		fmt.Println("Error creating file:", err)
+		fmt.Println("Error creating main config file:", err)
 		os.Exit(1)
 	}
 
@@ -38,7 +38,8 @@ func generateConfig() {
 
 	// Create log_open alias
 	file.WriteString("//Open log for writing alias\n")
-	file.WriteString("alias lb_log_open \"sixense_clear_bindings;sixense_write_bindings " + prefix + "_customization_selection.txt;con_timestamp 0;con_logfile cfg/" + prefix + "_customization_selection.txt\"\n")
+	file.WriteString("alias lb_log_selection_open \"sixense_clear_bindings;sixense_write_bindings " + prefix + "_customization_selection.txt;con_timestamp 0;con_logfile cfg/" + prefix + "_customization_selection.txt\"\n")
+	file.WriteString("alias lb_log_customization_open \"sixense_clear_bindings;sixense_write_bindings " + prefix + "_customizations.txt;con_timestamp 0;con_logfile cfg/" + prefix + "_customizations.txt\"\n")
 	file.WriteString("\n")
 
 	// Create save aliases
@@ -88,6 +89,93 @@ func generateConfig() {
 						" \"alias " + saveAlias + " echo " + customizationAlias + 
 						";alias " + writeAlias + " echo " + alias + "\"\n")
 	}
+}
+
+func generateSaveConfig() {
+	// Open or create file
+	var fileExists bool
+	if _, err := os.Stat("cfg/"+prefix+"_save.cfg"); err == nil { // Handle file already exists
+		fmt.Println("Save file exists.")
+		fileExists = true
+		// TODO
+	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
+		fileExists = false
+	} else { // Oh shit
+		fmt.Println("Save file is inaccessible!")
+		os.Exit(1)
+	}
+
+	if fileExists == true {
+		os.Exit(1)
+	}
+	
+	// Create main alias file
+	file, err := os.Create("cfg/"+prefix+"_save.cfg")
+	if err != nil {
+		fmt.Println("Error creating save file:", err)
+		os.Exit(1)
+	}
+
+	defer file.Close()
+	
+	// Create aliases to dump save aliases to file
+	file.WriteString("//Clear and prep log file\n")
+	file.WriteString("lb_log_selection_open\n")
+	file.WriteString("\n")
+
+	saveAlias := prefix + "_" + customizationName + "_dump"
+	file.WriteString("//Dump current aliases to file\n")
+	file.WriteString(saveAlias + "\n")
+	file.WriteString("\n")
+
+	file.WriteString("//Close log file\n")
+	file.WriteString("con_logfile \"\"")
+}
+
+func generateGeneratorConfig() {
+	// Open or create file
+	var fileExists bool
+	if _, err := os.Stat("cfg/"+prefix+"_generate.cfg"); err == nil { // Handle file already exists
+		fmt.Println("Genertor file exists.")
+		fileExists = true
+		// TODO
+	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
+		fileExists = false
+	} else { // Oh shit
+		fmt.Println("Generator file is inaccessible!")
+		os.Exit(1)
+	}
+
+	if fileExists == true {
+		os.Exit(1)
+	}
+	
+	// Create main alias file
+	file, err := os.Create("cfg/"+prefix+"_generate.cfg")
+	if err != nil {
+		fmt.Println("Error creating generator file:", err)
+		os.Exit(1)
+	}
+
+	defer file.Close()
+
+	// Create aliases to dump save aliases to file
+	file.WriteString("//Clear and prep log file\n")
+	file.WriteString("lb_log_customization_open\n")
+	file.WriteString("\n")
+
+	file.WriteString("//Setup file\n")
+	file.WriteString("echo \"x{\"\n")
+	file.WriteString("\n")
+
+	writeAlias := prefix + "_" + customizationName + "_write"
+	file.WriteString("//Write current customizations to file\n")
+	file.WriteString(writeAlias + "\n")
+	file.WriteString("\n")
+
+	file.WriteString("//Close log file\n")
+	file.WriteString("echo \"}\"\n")
+	file.WriteString("con_logfile \"\"")
 }
 
 func commentSource() {

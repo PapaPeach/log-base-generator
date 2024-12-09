@@ -85,6 +85,7 @@ func main() {
 		getSourceFilePassed = getSourceFile()
 		if !getSourceFilePassed {
 			fmt.Println("Please try again.")
+			fmt.Println()
 		}
 	}
 
@@ -117,6 +118,7 @@ func main() {
 			}
 			if !getParamPassed { // Parameter not found
 				fmt.Println("Please try again.")
+				fmt.Println()
 			}
 		}
 
@@ -174,9 +176,11 @@ func main() {
 		// Validate
 		if strings.Contains(customizationName, " ") {
 			fmt.Println("Name cannot contain spaces. Please try again.")
+			fmt.Println()
 			customizationName = ""
 		} else if len(customizationName) < 3 {
 			fmt.Println("Name must be more than 3 characters. Please try again.")
+			fmt.Println()
 		} else { // Passed
 			customizationName = strings.ToLower(customizationName)
 		}
@@ -235,7 +239,7 @@ func main() {
 			commentsConfirmed = true
 		} else if strings.EqualFold(response, "n") { // Don't allow automatic comments
 			fmt.Println("You will need to manually comment / remove lines with customized parameters or customizations will not work.")
-			fmt.Print("Confrim? [Y] / [N]: ")
+			fmt.Print("Confirm? [Y] / [N]: ")
 			// Use buffered reader because Scanln sucks
 			response, _ = reader.ReadString('\n') // Read to newline
 			response = strings.TrimSpace(response) // Remove newline
@@ -248,7 +252,11 @@ func main() {
 	fmt.Println()
 
 	// Populate hud/cfg/_.cfg file
-	generateConfig()
+	generateMainConfig()
+	generateSaveConfig()
+	generateGeneratorConfig()
+	
+	// Generate button code pastable
 
 	// Comment srcFile panel lines
 	if autoComment == true {
