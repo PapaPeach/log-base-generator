@@ -43,7 +43,7 @@ func generateMainConfig() {
 	file.WriteString("\n")
 
 	// Create save aliases
-	saveAlias := prefix + "_" + customizationName + "_dump"
+	saveAlias := prefix + "_" + customizations[customizationsCount].customizationName + "_dump"
 	file.WriteString("//Declare customization save aliases\n")
 	file.WriteString("alias " + saveAlias + " \"\"\n")
 	file.WriteString("\n")
@@ -51,17 +51,17 @@ func generateMainConfig() {
 	// Create default value aliases
 	var defaultAlias string
 	defaultBraceCount := 0
-	for i := 0; i < len(customizations[0])-(2*numParam); i++ {
-		defaultAlias += customizations[0][i] + "{"
+	for i := 0; i < len(customizations[customizationsCount].customizations[0])-(2*customizations[customizationsCount].numParam); i++ {
+		defaultAlias += customizations[customizationsCount].customizations[0][i] + "{"
 		defaultBraceCount++
 	}
 	// Parameter and value
-	defaultAlias += strings.Join(customizations[0][len(customizations[0])-(2*numParam):], " ")
+	defaultAlias += strings.Join(customizations[customizationsCount].customizations[0][len(customizations[customizationsCount].customizations[0])-(2*customizations[customizationsCount].numParam):], " ")
 	//Close braces
 	for j := 0; j < defaultBraceCount; j++ {
 		defaultAlias += "}"
 	}
-	writeAlias := prefix + "_" + customizationName + "_write"
+	writeAlias := prefix + "_" + customizations[customizationsCount].customizationName + "_write"
 	file.WriteString("//Initialize default values\n")
 	file.WriteString("alias " + writeAlias + " \"echo " + defaultAlias + "\"\n")
 	file.WriteString("\n")
@@ -70,16 +70,16 @@ func generateMainConfig() {
 	// saveAlias [value];writeAlias [value]
 	file.WriteString("//Define customization aliases\n")
 	for i := range customizations {
-		customizationAlias := customizationName + strconv.Itoa(i+1)
+		customizationAlias := customizations[customizationsCount].customizationName + strconv.Itoa(i+1)
 		var alias string
 		braceCount := 0
 		// Panel path
-		for j := 0; j < len(customizations[i])-(2*numParam); j++ {
-			alias += customizations[i][j] + "{"
+		for j := 0; j < len(customizations[customizationsCount].customizations[i])-(2*customizations[customizationsCount].numParam); j++ {
+			alias += customizations[customizationsCount].customizations[i][j] + "{"
 			braceCount++
 		}
 		// Parameter and value
-		alias += strings.Join(customizations[i][len(customizations[i])-(2*numParam):], " ")
+		alias += strings.Join(customizations[customizationsCount].customizations[i][len(customizations[customizationsCount].customizations[i])-(2*customizations[customizationsCount].numParam):], " ")
 		//Close braces
 		for j := 0; j < braceCount; j++ {
 			alias += "}"
@@ -123,7 +123,7 @@ func generateSaveConfig() {
 	file.WriteString("lb_log_selection_open\n")
 	file.WriteString("\n")
 
-	saveAlias := prefix + "_" + customizationName + "_dump"
+	saveAlias := prefix + "_" + customizations[customizationsCount].customizationName + "_dump"
 	file.WriteString("//Dump current aliases to file\n")
 	file.WriteString(saveAlias + "\n")
 	file.WriteString("\n")
@@ -168,7 +168,7 @@ func generateGeneratorConfig() {
 	file.WriteString("echo \"x{\"\n")
 	file.WriteString("\n")
 
-	writeAlias := prefix + "_" + customizationName + "_write"
+	writeAlias := prefix + "_" + customizations[customizationsCount].customizationName + "_write"
 	file.WriteString("//Write current customizations to file\n")
 	file.WriteString(writeAlias + "\n")
 	file.WriteString("\n")
@@ -188,7 +188,7 @@ func generateButtonCommands() {
 
 func commentSource() {
 	// Open source file
-	inputFile, err := os.Open(srcFile)
+	inputFile, err := os.Open(customizations[customizationsCount].srcFile)
 	if err != nil {
 		fmt.Println("Error opening source file for reading comments:", err)
 		os.Exit(1)
@@ -202,7 +202,7 @@ func commentSource() {
 	scnr := bufio.NewScanner(inputFile)
 	for scnr.Scan() {
 		line := scnr.Text()
-		if paramLinesIndex < len(paramLines) && lineNum == paramLines[paramLinesIndex] { // If line is to be commented
+		if paramLinesIndex < len(customizations[customizationsCount].paramLines) && lineNum == customizations[customizationsCount].paramLines[paramLinesIndex] { // If line is to be commented
 			commented := "//lb" + line
 			fileContents = append(fileContents, commented)
 			paramLinesIndex++
@@ -213,7 +213,7 @@ func commentSource() {
 	}
 	
 	// Rewrite file with comments
-	outputFile, err := os.Create(srcFile)
+	outputFile, err := os.Create(customizations[customizationsCount].srcFile)
 	if err != nil {
 		fmt.Println("Error opening file for writing comments:", err)
 	}

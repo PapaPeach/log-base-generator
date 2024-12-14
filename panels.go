@@ -14,7 +14,7 @@ func getPanel() []string {
 	fmt.Scanln(&panel)
 
 	// Open source file
-	file, err := os.Open(srcFile)
+	file, err := os.Open(customizations[customizationsCount].srcFile)
 	if err != nil {
 		fmt.Println("Error opening source file:", err)
 		os.Exit(1)
@@ -58,7 +58,7 @@ func getPanel() []string {
 
 	// Immediately handle no match found
 	if count < 1 {
-		fmt.Println("Could not find", panel, "in", srcFile)
+		fmt.Println("Could not find", panel, "in", customizations[customizationsCount].srcFile)
 		return nil
 	}
 
@@ -112,10 +112,10 @@ func getPanel() []string {
 
 	// Handle matches
 	if count == 1 {
-		fmt.Printf("Found %v in %v.", panel, srcFile)
+		fmt.Printf("Found %v in %v.", panel, customizations[customizationsCount].srcFile)
 		return panelTree
 	} else if count > 1 { // Duplicates found, user input needed
-		fmt.Printf("Found %v instances of %v in %v.\n", count, panel, srcFile)
+		fmt.Printf("Found %v instances of %v in %v.\n", count, panel, customizations[customizationsCount].srcFile)
 		// Print options
 		optionNum := 1
 		for i := 0; i < len(optionIndexes)-1; i += 2 {
@@ -159,9 +159,9 @@ func getParam(tree []string) ([]string, bool) {
 	param = strings.TrimSpace(param) // Remove newline
 
 	// Check for previous instance of parameter
-	if numParam > 1 {
-		for i := len(customizations[0])-(2*numParam); i < len(customizations[0]); i += 2 {
-			if strings.EqualFold(param, customizations[0][i]) {
+	if customizations[customizationsCount].numParam > 1 {
+		for i := len(customizations[customizationsCount].customizations[0])-(2*customizations[customizationsCount].numParam); i < len(customizations[customizationsCount].customizations[0]); i += 2 {
+			if strings.EqualFold(param, customizations[customizationsCount].customizations[0][i]) {
 				fmt.Printf("Previous instance of: \"%v\" found.\n", param)
 				return tree, false
 			}
@@ -169,7 +169,7 @@ func getParam(tree []string) ([]string, bool) {
 	}
 
 	// Open source file
-	file, err := os.Open(srcFile)
+	file, err := os.Open(customizations[customizationsCount].srcFile)
 	if err != nil {
 		fmt.Println("Error opening source file:", err)
 		os.Exit(1)
@@ -188,11 +188,11 @@ func getParam(tree []string) ([]string, bool) {
 		if strings.Contains(line, "{") { // Count nested level
 			level++
 		}
-		if level > 0 && level <= len(panelTree) && strings.Contains(line, panelTree[level-1]) { // Navigate through tree
+		if level > 0 && level <= len(customizations[customizationsCount].panelTree) && strings.Contains(line, customizations[customizationsCount].panelTree[level-1]) { // Navigate through tree
 			isParent = true
-		} else if level == len(panelTree)+1 && isParent && strings.Contains(line, "\""+param+"\"") { // Parameter found in correct panel
+		} else if level == len(customizations[customizationsCount].panelTree)+1 && isParent && strings.Contains(line, "\""+param+"\"") { // Parameter found in correct panel
 			tree = append(tree, param)
-			paramLines = append(paramLines, lineNum)
+			customizations[customizationsCount].paramLines = append(customizations[customizationsCount].paramLines, lineNum)
 			return tree, true
 		} 
 		if strings.Contains(line, "}") { // Track tree status and nested level
