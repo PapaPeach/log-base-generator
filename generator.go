@@ -178,6 +178,14 @@ func generateGeneratorConfig() {
 	file.WriteString("con_logfile \"\"")
 }
 
+func generateValveRc() {
+	fmt.Println("TODO generate valve.rc")
+}
+
+func generateButtonCommands() {
+	fmt.Println("TODO generate button commands")
+}
+
 func commentSource() {
 	// Open source file
 	inputFile, err := os.Open(srcFile)

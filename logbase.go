@@ -74,7 +74,8 @@ func getSourceFile() bool {
 func main() {
 	// Validate program location
 	if !locationCheck() {
-		return
+		fmt.Println("Program is in the wrong location. Please place it in your rood Hud folder, where info.vdf is located.")
+		os.Exit(1)
 	}
 	fmt.Println("Program passed location check.")
 	fmt.Println()
@@ -145,6 +146,7 @@ func main() {
 				customizations[i] = getValues(customizations[i], i, numValues)
 			}
 		}
+		// For debug output
 		/*for i := range customizations {
 			fmt.Println(i+1, ":", customizations[i])
 		}*/
@@ -187,7 +189,7 @@ func main() {
 	}
 	fmt.Println()
 
-	// Set default value
+	// Set default parameter value
 
 	// Ask if user has more panels they'd like to edit in srcFile. Y = loop, N = break
 
@@ -255,8 +257,10 @@ func main() {
 	generateMainConfig()
 	generateSaveConfig()
 	generateGeneratorConfig()
+	generateValveRc()
 	
 	// Generate button code pastable
+	generateButtonCommands()
 
 	// Comment srcFile panel lines
 	if autoComment == true {
