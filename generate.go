@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// TODO instead of using customizations[customizationsCount]._____, increment through customizations
 func generateMainConfig() {
 	// Open or create file
 	var fileExists bool
@@ -51,12 +52,12 @@ func generateMainConfig() {
 	// Create default value aliases
 	var defaultAlias string
 	defaultBraceCount := 0
-	for i := 0; i < len(customizations[customizationsCount].customizations[0])-(2*customizations[customizationsCount].numParam); i++ {
-		defaultAlias += customizations[customizationsCount].customizations[0][i] + "{"
+	for i := 0; i < len(customizations[customizationsCount].options[0])-(2*customizations[customizationsCount].numParam); i++ {
+		defaultAlias += customizations[customizationsCount].options[0][i] + "{"
 		defaultBraceCount++
 	}
 	// Parameter and value
-	defaultAlias += strings.Join(customizations[customizationsCount].customizations[0][len(customizations[customizationsCount].customizations[0])-(2*customizations[customizationsCount].numParam):], " ")
+	defaultAlias += strings.Join(customizations[customizationsCount].options[0][len(customizations[customizationsCount].options[0])-(2*customizations[customizationsCount].numParam):], " ")
 	//Close braces
 	for j := 0; j < defaultBraceCount; j++ {
 		defaultAlias += "}"
@@ -69,17 +70,17 @@ func generateMainConfig() {
 	// Create customization definitions
 	file.WriteString("//Define customization aliases\n")
 	
-	for i := range customizations[customizationsCount].customizations {
+	for i := range customizations[customizationsCount].options {
 		customizationAlias := customizations[customizationsCount].customizationName + strconv.Itoa(i+1)
 		var panelCode string
 		braceCount := 0
 		// Panel path
-		for j := 0; j < len(customizations[customizationsCount].customizations[i])-(2*customizations[customizationsCount].numParam); j++ {
-			panelCode += customizations[customizationsCount].customizations[i][j] + "{"
+		for j := 0; j < len(customizations[customizationsCount].options[i])-(2*customizations[customizationsCount].numParam); j++ {
+			panelCode += customizations[customizationsCount].options[i][j] + "{"
 			braceCount++
 		}
 		// Parameter and value
-		panelCode += strings.Join(customizations[customizationsCount].customizations[i][len(customizations[customizationsCount].customizations[i])-(2*customizations[customizationsCount].numParam):], " ")
+		panelCode += strings.Join(customizations[customizationsCount].options[i][len(customizations[customizationsCount].options[i])-(2*customizations[customizationsCount].numParam):], " ")
 		//Close braces
 		for j := 0; j < braceCount; j++ {
 			panelCode += "}"
@@ -248,7 +249,7 @@ func generateButtonCommands() {
 	file.WriteString("This file contains the command parameter and value for each unique customization option.\n")
 	file.WriteString("Create your button as normal, then copy + paste the button code in the appropriate location.\n")
 	file.WriteString("You will have to handle the aesthetics and ActionSignalLevel on your own.\n\n")
-	for i := range customizations[customizationsCount].customizations {
+	for i := range customizations[customizationsCount].options {
 		customizationAlias := customizations[customizationsCount].customizationName + strconv.Itoa(i+1)
 		file.WriteString("\"command\"\t\t\"engine "+customizationAlias+"\"\n")
 	}

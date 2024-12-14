@@ -160,8 +160,8 @@ func getParam(tree []string) ([]string, bool) {
 
 	// Check for previous instance of parameter
 	if customizations[customizationsCount].numParam > 1 {
-		for i := len(customizations[customizationsCount].customizations[0])-(2*customizations[customizationsCount].numParam); i < len(customizations[customizationsCount].customizations[0]); i += 2 {
-			if strings.EqualFold(param, customizations[customizationsCount].customizations[0][i]) {
+		for i := len(customizations[customizationsCount].options[0])-(2*customizations[customizationsCount].numParam); i < len(customizations[customizationsCount].options[0]); i += 2 {
+			if strings.EqualFold(param, customizations[customizationsCount].options[0][i]) {
 				fmt.Printf("Previous instance of: \"%v\" found.\n", param)
 				return tree, false
 			}

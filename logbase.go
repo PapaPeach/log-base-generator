@@ -23,7 +23,7 @@ type customization struct {
 	panelTree []string
 	numParam int
 	paramLines []int
-	customizations []([]string)
+	options []([]string)
 	customizationName string
 }
 
@@ -121,8 +121,8 @@ func main() {
 					var tempTree []string
 					tempTree, getParamPassed = getParam(customizationTree)
 					if getParamPassed == true {
-						for i := 0; i < len(customizations[customizationsCount].customizations); i++ {
-							customizations[customizationsCount].customizations[i] = append(customizations[customizationsCount].customizations[i], tempTree[len(tempTree)-1])
+						for i := 0; i < len(customizations[customizationsCount].options); i++ {
+							customizations[customizationsCount].options[i] = append(customizations[customizationsCount].options[i], tempTree[len(tempTree)-1])
 						}
 					}
 				}
@@ -142,9 +142,9 @@ func main() {
 				if customizations[customizationsCount].numParam == 1 { // Only one parameter
 					newCustomization := make([]string, len(customizationTree))
 					copy(newCustomization, customizationTree)
-					customizations[customizationsCount].customizations = append(customizations[customizationsCount].customizations, getValues(newCustomization, i, numValues))
+					customizations[customizationsCount].options = append(customizations[customizationsCount].options, getValues(newCustomization, i, numValues))
 				} else { // Additional parameters
-					customizations[customizationsCount].customizations[i] = getValues(customizations[customizationsCount].customizations[i], i, numValues)
+					customizations[customizationsCount].options[i] = getValues(customizations[customizationsCount].options[i], i, numValues)
 				}
 			}
 
