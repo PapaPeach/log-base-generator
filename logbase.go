@@ -121,7 +121,7 @@ func main() {
 					var tempTree []string
 					tempTree, getParamPassed = getParam(customizationTree)
 					if getParamPassed == true {
-						for i := 0; i < len(customizations); i++ {
+						for i := 0; i < len(customizations[customizationsCount].customizations); i++ {
 							customizations[customizationsCount].customizations[i] = append(customizations[customizationsCount].customizations[i], tempTree[len(tempTree)-1])
 						}
 					}
@@ -147,10 +147,6 @@ func main() {
 					customizations[customizationsCount].customizations[i] = getValues(customizations[customizationsCount].customizations[i], i, numValues)
 				}
 			}
-			// For debug output
-			/*for i := range customizations {
-				fmt.Println(i+1, ":", customizations[i])
-			}*/
 
 			// Ask for more parameters
 			var response string
@@ -195,8 +191,24 @@ func main() {
 		// Ask if user has more panels they'd like to edit in srcFile. Y = loop, N = break
 
 		// Ask if user has more files they'd like to generate in directory
-		userDone = true
+		validResponse := false
+		for !validResponse {
+			var response string
+			fmt.Print("Do you have more customizations to generate log-bases for? [Y] / [N]: ")
+			// Use buffered reader because Scanln sucks
+			response, _ = reader.ReadString('\n') // Read to newline
+			response = strings.TrimSpace(response) // Remove newline
+			if strings.EqualFold(response, "y") { // Generate more log-base customizations
+				validResponse = true
+			} else if strings.EqualFold(response, "n") { // Proceed to rest of generation
+				userDone = true
+				validResponse = true
+			} else {
+				fmt.Printf("\"%v\" is not a valid response.\n", response)
+			}
+		}
 	}
+	fmt.Println()
 	
 	// Search for existing hud/cfg/_.cfg file containing "sixense_clear_bindings;sixense_write_bindings _.txt" || "alias lb_log_open"
 	// If exists: prompt user to generate aliases there. Else ask user if they'd like to use hud name as file prefix, or custom prefix

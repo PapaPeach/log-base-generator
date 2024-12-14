@@ -67,27 +67,28 @@ func generateMainConfig() {
 	file.WriteString("\n")
 
 	// Create customization definitions
-	// saveAlias [value];writeAlias [value]
 	file.WriteString("//Define customization aliases\n")
-	for i := range customizations {
+	
+	for i := range customizations[customizationsCount].customizations {
 		customizationAlias := customizations[customizationsCount].customizationName + strconv.Itoa(i+1)
-		var alias string
+		var panelCode string
 		braceCount := 0
 		// Panel path
 		for j := 0; j < len(customizations[customizationsCount].customizations[i])-(2*customizations[customizationsCount].numParam); j++ {
-			alias += customizations[customizationsCount].customizations[i][j] + "{"
+			panelCode += customizations[customizationsCount].customizations[i][j] + "{"
 			braceCount++
 		}
 		// Parameter and value
-		alias += strings.Join(customizations[customizationsCount].customizations[i][len(customizations[customizationsCount].customizations[i])-(2*customizations[customizationsCount].numParam):], " ")
+		panelCode += strings.Join(customizations[customizationsCount].customizations[i][len(customizations[customizationsCount].customizations[i])-(2*customizations[customizationsCount].numParam):], " ")
 		//Close braces
 		for j := 0; j < braceCount; j++ {
-			alias += "}"
+			panelCode += "}"
 		}
 
+		// alias customizationAlias "alias saveAlias echo customizationAlias;alias writeAlias echo panelCode"
 		file.WriteString("alias " + customizationAlias + 
 						" \"alias " + saveAlias + " echo " + customizationAlias + 
-						";alias " + writeAlias + " echo " + alias + "\"\n")
+						";alias " + writeAlias + " echo " + panelCode + "\"\n")
 	}
 }
 
@@ -109,7 +110,7 @@ func generateSaveConfig() {
 		os.Exit(1)
 	}
 	
-	// Create main alias file
+	// Create save file
 	file, err := os.Create("cfg/"+prefix+"_save.cfg")
 	if err != nil {
 		fmt.Println("Error creating save file:", err)
@@ -150,7 +151,7 @@ func generateGeneratorConfig() {
 		os.Exit(1)
 	}
 	
-	// Create main alias file
+	// Create generate file
 	file, err := os.Create("cfg/"+prefix+"_generate.cfg")
 	if err != nil {
 		fmt.Println("Error creating generator file:", err)
@@ -179,11 +180,78 @@ func generateGeneratorConfig() {
 }
 
 func generateValveRc() {
-	fmt.Println("TODO generate valve.rc")
+	// Open or create file
+	var fileExists bool
+	if _, err := os.Stat("cfg/valve.rc"); err == nil { // Handle file already exists
+		fmt.Println("valve.rc exists.")
+		fileExists = true
+		// TODO
+	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
+		fileExists = false
+	} else { // Oh shit
+		fmt.Println("valve.rc is inaccessible!")
+		os.Exit(1)
+	}
+
+	if fileExists == true {
+		os.Exit(1)
+	}
+	
+	// Create valve.rc
+	file, err := os.Create("cfg/valve.rc")
+	if err != nil {
+		fmt.Println("Error creating valve.rc:", err)
+		os.Exit(1)
+	}
+
+	defer file.Close()
+
+	// Create valve.rc with default values and main config
+	file.WriteString("//lb\n")
+	file.WriteString("r_decal_cullsize 1\n")
+	file.WriteString("exec joystick.cfg\n")
+	file.WriteString("exec autoexec.cfg\n")
+	file.WriteString("exec "+prefix+".cfg\n")
+	file.WriteString("stuffcmds\n")
+	file.WriteString("startupmenu\n")
+	file.WriteString("sv_unlockedchapters 99")
 }
 
 func generateButtonCommands() {
-	fmt.Println("TODO generate button commands")
+	// Open or create file
+	var fileExists bool
+	if _, err := os.Stat("logbase_button_copypasta.txt"); err == nil { // Handle file already exists
+		fmt.Println("Button commands file exists.")
+		fileExists = true
+		// TODO
+	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
+		fileExists = false
+	} else { // Oh shit
+		fmt.Println("Button commands file is inaccessible!")
+		os.Exit(1)
+	}
+
+	if fileExists == true {
+		os.Exit(1)
+	}
+	
+	// Create button commands file
+	file, err := os.Create("logbase_button_copypasta.txt")
+	if err != nil {
+		fmt.Println("Error creating button commands file:", err)
+		os.Exit(1)
+	}
+
+	defer file.Close()
+
+	// Create file containing copy + paste template for button code
+	file.WriteString("This file contains the command parameter and value for each unique customization option.\n")
+	file.WriteString("Create your button as normal, then copy + paste the button code in the appropriate location.\n")
+	file.WriteString("You will have to handle the aesthetics and ActionSignalLevel on your own.\n\n")
+	for i := range customizations[customizationsCount].customizations {
+		customizationAlias := customizations[customizationsCount].customizationName + strconv.Itoa(i+1)
+		file.WriteString("\"command\"\t\t\"engine "+customizationAlias+"\"\n")
+	}
 }
 
 func commentSource() {
