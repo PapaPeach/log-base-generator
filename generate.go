@@ -137,9 +137,11 @@ func generateSaveConfig() {
 	file.WriteString("lb_log_selection_open\n")
 	file.WriteString("\n")
 
-	saveAlias := prefix + "_" + customizations[customizationsCount].customizationName + "_dump"
 	file.WriteString("//Dump current aliases to file\n")
-	file.WriteString(saveAlias + "\n")
+	for c := range customizations {
+		saveAlias := prefix + "_" + customizations[c].customizationName + "_dump"
+		file.WriteString(saveAlias + "\n")
+	}
 	file.WriteString("\n")
 
 	file.WriteString("//Close log file\n")
@@ -182,9 +184,11 @@ func generateGeneratorConfig() {
 	file.WriteString("echo \"x{\"\n")
 	file.WriteString("\n")
 
-	writeAlias := prefix + "_" + customizations[customizationsCount].customizationName + "_write"
 	file.WriteString("//Write current customizations to file\n")
-	file.WriteString(writeAlias + "\n")
+	for c := range customizations {
+		writeAlias := prefix + "_" + customizations[c].customizationName + "_write"
+		file.WriteString(writeAlias + "\n")
+	}
 	file.WriteString("\n")
 
 	file.WriteString("//Close log file\n")
@@ -260,15 +264,18 @@ func generateButtonCommands() {
 	// Create file containing copy + paste template for button code
 	file.WriteString("This file contains the command parameter and value for each unique customization option.\n")
 	file.WriteString("Create your button as normal, then copy + paste the button code in the appropriate location.\n")
-	file.WriteString("You will have to handle the aesthetics and ActionSignalLevel on your own.\n\n")
-	for i := range customizations[customizationsCount].options {
-		customizationAlias := customizations[customizationsCount].customizationName + strconv.Itoa(i+1)
-		file.WriteString("\"command\"\t\t\"engine " + customizationAlias + "\"\n")
+	file.WriteString("You will have to handle the aesthetics and ActionSignalLevel on your own.\n")
+	for c := range customizations {
+		file.WriteString("\nCustomization " + strconv.Itoa(c+1) + " buttons\n")
+		for i := range customizations[c].options {
+			customizationAlias := customizations[c].customizationName + strconv.Itoa(i+1)
+			file.WriteString("\"command\"\t\t\"engine " + customizationAlias + "\"\n")
+		}
 	}
 }
 
-func getBasePath() string {
-	srcPath := strings.Split(customizations[customizationsCount].srcFile, "\\")
+func getBasePath(c int) string {
+	srcPath := strings.Split(customizations[c].srcFile, "\\")
 	var basePath string
 
 	// Iterate through srcPath and replace directories from root dir with back nav
@@ -282,51 +289,55 @@ func getBasePath() string {
 }
 
 func commentSource() {
-	// Open source file
-	inputFile, err := os.Open(customizations[customizationsCount].srcFile)
-	if err != nil {
-		fmt.Println("Error opening source file for reading comments:", err)
-		os.Exit(1)
-	}
-
-	defer inputFile.Close()
-
-	// Create slice containing all the lines and add comments to necessary lines
-	var fileContents []string
-	lineNum := 1
-	paramLinesIndex := 0
-	scnr := bufio.NewScanner(inputFile)
-	for scnr.Scan() {
-		line := scnr.Text()
-		if paramLinesIndex < len(customizations[customizationsCount].paramLines) && lineNum == customizations[customizationsCount].paramLines[paramLinesIndex] { // If line is to be commented
-			commented := "//lb" + line
-			fileContents = append(fileContents, commented)
-			paramLinesIndex++
-		} else { // Non-commented lines
-			fileContents = append(fileContents, line)
+	for c := range customizations {
+		// Open source file
+		inputFile, err := os.Open(customizations[c].srcFile)
+		if err != nil {
+			fmt.Println("Error opening source file for reading comments:", err)
+			os.Exit(1)
 		}
-		lineNum++
-	}
 
-	// Rewrite file with comments
-	outputFile, err := os.Create(customizations[customizationsCount].srcFile)
-	if err != nil {
-		fmt.Println("Error opening file for writing comments:", err)
-	}
+		// Close at end of loop!
 
-	defer outputFile.Close()
-
-	// Added #base path to top of file if not already there
-	basePath := getBasePath()
-	if !strings.Contains(fileContents[0], basePath) {
-		outputFile.WriteString("#base \"" + basePath + "\"\n\n")
-	}
-
-	// Repopulate file
-	for i := range fileContents {
-		outputFile.WriteString(fileContents[i])
-		if i < len(fileContents)-1 {
-			outputFile.WriteString("\n")
+		// Create slice containing all the lines and add comments to necessary lines
+		var fileContents []string
+		lineNum := 1
+		paramLinesIndex := 0
+		scnr := bufio.NewScanner(inputFile)
+		for scnr.Scan() {
+			line := scnr.Text()
+			if paramLinesIndex < len(customizations[c].paramLines) && lineNum == customizations[c].paramLines[paramLinesIndex] { // If line is to be commented
+				commented := "//lb" + line
+				fileContents = append(fileContents, commented)
+				paramLinesIndex++
+			} else { // Non-commented lines
+				fileContents = append(fileContents, line)
+			}
+			lineNum++
 		}
+
+		// Rewrite file with comments
+		outputFile, err := os.Create(customizations[c].srcFile)
+		if err != nil {
+			fmt.Println("Error opening file for writing comments:", err)
+		}
+
+		// Close at end of loop!
+
+		// Added #base path to top of file if not already there
+		basePath := getBasePath(c)
+		if !strings.Contains(fileContents[0], basePath) {
+			outputFile.WriteString("#base \"" + basePath + "\"\n\n")
+		}
+
+		// Repopulate file
+		for i := range fileContents {
+			outputFile.WriteString(fileContents[i])
+			if i < len(fileContents)-1 {
+				outputFile.WriteString("\n")
+			}
+		}
+		inputFile.Close()
+		outputFile.Close()
 	}
 }

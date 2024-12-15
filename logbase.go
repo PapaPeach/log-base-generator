@@ -102,7 +102,8 @@ func main() {
 		// Get panel tree
 		customizations[customizationsCount].panelTree = getPanel()
 		if customizations[customizationsCount].panelTree == nil {
-			return
+			fmt.Println("panelTree returned as nil")
+			os.Exit(1)
 		}
 		fmt.Println()
 

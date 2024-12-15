@@ -114,6 +114,10 @@ func getPanel() []string {
 	// Handle matches
 	if count == 1 {
 		fmt.Printf("Found %v in %v.\n", panel, customizations[customizationsCount].srcFile)
+		// Handle level 1 lone match
+		if len(filteredPanels) == 1 {
+			return filteredPanels
+		}
 		return panelTree
 	} else if count > 1 { // Duplicates found, user input needed
 		fmt.Printf("Found %v instances of %v in %v.\n", count, panel, customizations[customizationsCount].srcFile)
