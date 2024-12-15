@@ -19,11 +19,11 @@ var customizations []customization
 var customizationsCount int = 0
 
 type customization struct {
-	srcFile string
-	panelTree []string
-	numParam int
-	paramLines []int
-	options []([]string)
+	srcFile           string
+	panelTree         []string
+	numParam          int
+	paramLines        []int
+	options           []([]string)
 	customizationName string
 }
 
@@ -50,7 +50,7 @@ func getSourceFile() bool {
 	// Get source file
 	fmt.Print("Enter filepath of file: ")
 	// Use buffered reader because Scanln sucks
-	customizations[customizationsCount].srcFile, _ = reader.ReadString('\n') // Read to newline
+	customizations[customizationsCount].srcFile, _ = reader.ReadString('\n')                                     // Read to newline
 	customizations[customizationsCount].srcFile = strings.TrimSpace(customizations[customizationsCount].srcFile) // Remove newline
 
 	// Convert / to \ for program
@@ -153,7 +153,7 @@ func main() {
 			for len(response) == 0 {
 				fmt.Print("Add more parameters to this customization? [Y] / [N]: ")
 				// Use buffered reader because Scanln sucks
-				response, _ = reader.ReadString('\n') // Read to newline
+				response, _ = reader.ReadString('\n')  // Read to newline
 				response = strings.TrimSpace(response) // Remove newline
 				if strings.EqualFold(response, "y") {
 					customizations[customizationsCount].numParam++
@@ -165,12 +165,12 @@ func main() {
 			}
 			fmt.Println()
 		}
-		
+
 		// Get customization name
 		for len(customizations[customizationsCount].customizationName) < 3 {
 			fmt.Print("Enter name for customization. This will be used generate log-base aliases: ")
 			// Use buffered reader because Scanln sucks
-			customizations[customizationsCount].customizationName, _ = reader.ReadString('\n') // Read to newline
+			customizations[customizationsCount].customizationName, _ = reader.ReadString('\n')                                               // Read to newline
 			customizations[customizationsCount].customizationName = strings.TrimSpace(customizations[customizationsCount].customizationName) // Remove newline
 			// Validate
 			if strings.Contains(customizations[customizationsCount].customizationName, " ") {
@@ -196,9 +196,9 @@ func main() {
 			var response string
 			fmt.Print("Do you have more customizations to generate log-bases for? [Y] / [N]: ")
 			// Use buffered reader because Scanln sucks
-			response, _ = reader.ReadString('\n') // Read to newline
+			response, _ = reader.ReadString('\n')  // Read to newline
 			response = strings.TrimSpace(response) // Remove newline
-			if strings.EqualFold(response, "y") { // Generate more log-base customizations
+			if strings.EqualFold(response, "y") {  // Generate more log-base customizations
 				validResponse = true
 			} else if strings.EqualFold(response, "n") { // Proceed to rest of generation
 				userDone = true
@@ -209,7 +209,7 @@ func main() {
 		}
 	}
 	fmt.Println()
-	
+
 	// Search for existing hud/cfg/_.cfg file containing "sixense_clear_bindings;sixense_write_bindings _.txt" || "alias lb_log_open"
 	// If exists: prompt user to generate aliases there. Else ask user if they'd like to use hud name as file prefix, or custom prefix
 	prefix = ""
@@ -218,7 +218,7 @@ func main() {
 		var response string
 		fmt.Printf("HUD name \"%v\" found, would you like to use that as your config prefix? [Y] / [N]: ", filepath.Base(curDir))
 		// Use buffered reader because Scanln sucks
-		response, _ = reader.ReadString('\n') // Read to newline
+		response, _ = reader.ReadString('\n')  // Read to newline
 		response = strings.TrimSpace(response) // Remove newline
 		if strings.EqualFold(response, "y") {
 			prefix = filepath.Base(curDir)
@@ -232,7 +232,7 @@ func main() {
 		fmt.Printf("Config files will generate using prefix: %v\nExample: hud/cfg/%v_generate.cfg\n", prefix, prefix)
 		fmt.Print("Continue? [Y] / [N]: ")
 		// Use buffered reader because Scanln sucks
-		response, _ = reader.ReadString('\n') // Read to newline
+		response, _ = reader.ReadString('\n')  // Read to newline
 		response = strings.TrimSpace(response) // Remove newline
 		if !strings.EqualFold(response, "y") {
 			prefix = ""
@@ -246,18 +246,18 @@ func main() {
 		var response string
 		fmt.Print("Allow program to comment necessary lines from source file? [Y] / [N]: ")
 		// Use buffered reader because Scanln sucks
-		response, _ = reader.ReadString('\n') // Read to newline
+		response, _ = reader.ReadString('\n')  // Read to newline
 		response = strings.TrimSpace(response) // Remove newline
-		if strings.EqualFold(response, "y") { // Allow automatic comments
+		if strings.EqualFold(response, "y") {  // Allow automatic comments
 			autoComment = true
 			commentsConfirmed = true
 		} else if strings.EqualFold(response, "n") { // Don't allow automatic comments
 			fmt.Println("You will need to manually comment / remove lines with customized parameters or customizations will not work.")
 			fmt.Print("Confirm? [Y] / [N]: ")
 			// Use buffered reader because Scanln sucks
-			response, _ = reader.ReadString('\n') // Read to newline
+			response, _ = reader.ReadString('\n')  // Read to newline
 			response = strings.TrimSpace(response) // Remove newline
-			if strings.EqualFold(response, "y") { // Allow automatic comments
+			if strings.EqualFold(response, "y") {  // Allow automatic comments
 				autoComment = false
 				commentsConfirmed = true
 			}
@@ -270,7 +270,7 @@ func main() {
 	generateSaveConfig()
 	generateGeneratorConfig()
 	generateValveRc()
-	
+
 	// Generate button code pastable
 	generateButtonCommands()
 

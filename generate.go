@@ -13,7 +13,7 @@ import (
 func generateMainConfig() {
 	// Open or create file
 	var fileExists bool
-	if _, err := os.Stat("cfg/"+prefix+".cfg"); err == nil { // Handle file already exists
+	if _, err := os.Stat("cfg/" + prefix + ".cfg"); err == nil { // Handle file already exists
 		fmt.Println("Main config file exists.")
 		fileExists = true
 		// TODO
@@ -27,9 +27,9 @@ func generateMainConfig() {
 	if fileExists == true {
 		os.Exit(1)
 	}
-	
+
 	// Create main alias file
-	file, err := os.Create("cfg/"+prefix+".cfg")
+	file, err := os.Create("cfg/" + prefix + ".cfg")
 	if err != nil {
 		fmt.Println("Error creating main config file:", err)
 		os.Exit(1)
@@ -69,7 +69,7 @@ func generateMainConfig() {
 
 	// Create customization definitions
 	file.WriteString("//Define customization aliases\n")
-	
+
 	for i := range customizations[customizationsCount].options {
 		customizationAlias := customizations[customizationsCount].customizationName + strconv.Itoa(i+1)
 		var panelCode string
@@ -87,16 +87,16 @@ func generateMainConfig() {
 		}
 
 		// alias customizationAlias "alias saveAlias echo customizationAlias;alias writeAlias echo panelCode"
-		file.WriteString("alias " + customizationAlias + 
-						" \"alias " + saveAlias + " echo " + customizationAlias + 
-						";alias " + writeAlias + " echo " + panelCode + "\"\n")
+		file.WriteString("alias " + customizationAlias +
+			" \"alias " + saveAlias + " echo " + customizationAlias +
+			";alias " + writeAlias + " echo " + panelCode + "\"\n")
 	}
 }
 
 func generateSaveConfig() {
 	// Open or create file
 	var fileExists bool
-	if _, err := os.Stat("cfg/"+prefix+"_save.cfg"); err == nil { // Handle file already exists
+	if _, err := os.Stat("cfg/" + prefix + "_save.cfg"); err == nil { // Handle file already exists
 		fmt.Println("Save file exists.")
 		fileExists = true
 		// TODO
@@ -110,16 +110,16 @@ func generateSaveConfig() {
 	if fileExists == true {
 		os.Exit(1)
 	}
-	
+
 	// Create save file
-	file, err := os.Create("cfg/"+prefix+"_save.cfg")
+	file, err := os.Create("cfg/" + prefix + "_save.cfg")
 	if err != nil {
 		fmt.Println("Error creating save file:", err)
 		os.Exit(1)
 	}
 
 	defer file.Close()
-	
+
 	// Create aliases to dump save aliases to file
 	file.WriteString("//Clear and prep log file\n")
 	file.WriteString("lb_log_selection_open\n")
@@ -137,7 +137,7 @@ func generateSaveConfig() {
 func generateGeneratorConfig() {
 	// Open or create file
 	var fileExists bool
-	if _, err := os.Stat("cfg/"+prefix+"_generate.cfg"); err == nil { // Handle file already exists
+	if _, err := os.Stat("cfg/" + prefix + "_generate.cfg"); err == nil { // Handle file already exists
 		fmt.Println("Genertor file exists.")
 		fileExists = true
 		// TODO
@@ -151,9 +151,9 @@ func generateGeneratorConfig() {
 	if fileExists == true {
 		os.Exit(1)
 	}
-	
+
 	// Create generate file
-	file, err := os.Create("cfg/"+prefix+"_generate.cfg")
+	file, err := os.Create("cfg/" + prefix + "_generate.cfg")
 	if err != nil {
 		fmt.Println("Error creating generator file:", err)
 		os.Exit(1)
@@ -197,7 +197,7 @@ func generateValveRc() {
 	if fileExists == true {
 		os.Exit(1)
 	}
-	
+
 	// Create valve.rc
 	file, err := os.Create("cfg/valve.rc")
 	if err != nil {
@@ -212,7 +212,7 @@ func generateValveRc() {
 	file.WriteString("r_decal_cullsize 1\n")
 	file.WriteString("exec joystick.cfg\n")
 	file.WriteString("exec autoexec.cfg\n")
-	file.WriteString("exec "+prefix+".cfg\n")
+	file.WriteString("exec " + prefix + ".cfg\n")
 	file.WriteString("stuffcmds\n")
 	file.WriteString("startupmenu\n")
 	file.WriteString("sv_unlockedchapters 99")
@@ -235,7 +235,7 @@ func generateButtonCommands() {
 	if fileExists == true {
 		os.Exit(1)
 	}
-	
+
 	// Create button commands file
 	file, err := os.Create("logbase_button_copypasta.txt")
 	if err != nil {
@@ -251,8 +251,22 @@ func generateButtonCommands() {
 	file.WriteString("You will have to handle the aesthetics and ActionSignalLevel on your own.\n\n")
 	for i := range customizations[customizationsCount].options {
 		customizationAlias := customizations[customizationsCount].customizationName + strconv.Itoa(i+1)
-		file.WriteString("\"command\"\t\t\"engine "+customizationAlias+"\"\n")
+		file.WriteString("\"command\"\t\t\"engine " + customizationAlias + "\"\n")
 	}
+}
+
+func getBasePath() string {
+	srcPath := strings.Split(customizations[customizationsCount].srcFile, "\\")
+	var basePath string
+
+	// Iterate through srcPath and replace directories from root dir with back nav
+	for i := 0; i < len(srcPath)-1; i++ {
+		basePath += "../"
+	}
+	// Append with path to customizations file
+	basePath += "cfg/" + prefix + "_customizations.txt"
+
+	return basePath
 }
 
 func commentSource() {
@@ -262,8 +276,9 @@ func commentSource() {
 		fmt.Println("Error opening source file for reading comments:", err)
 		os.Exit(1)
 	}
+
 	defer inputFile.Close()
-	
+
 	// Create slice containing all the lines and add comments to necessary lines
 	var fileContents []string
 	lineNum := 1
@@ -280,14 +295,22 @@ func commentSource() {
 		}
 		lineNum++
 	}
-	
+
 	// Rewrite file with comments
 	outputFile, err := os.Create(customizations[customizationsCount].srcFile)
 	if err != nil {
 		fmt.Println("Error opening file for writing comments:", err)
 	}
+
 	defer outputFile.Close()
 
+	// Added #base path to top of file if not already there
+	basePath := getBasePath()
+	if !strings.Contains(fileContents[0], basePath) {
+		outputFile.WriteString("#base \"" + basePath + "\"\n\n")
+	}
+
+	// Repopulate file
 	for i := range fileContents {
 		outputFile.WriteString(fileContents[i])
 		if i < len(fileContents)-1 {

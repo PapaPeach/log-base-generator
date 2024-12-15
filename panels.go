@@ -156,11 +156,11 @@ func getParam(tree []string) ([]string, bool) {
 	fmt.Print("Enter parameter to customize: ")
 	// Use buffered reader because Scanln sucks
 	param, _ = reader.ReadString('\n') // Read to newline
-	param = strings.TrimSpace(param) // Remove newline
+	param = strings.TrimSpace(param)   // Remove newline
 
 	// Check for previous instance of parameter
 	if customizations[customizationsCount].numParam > 1 {
-		for i := len(customizations[customizationsCount].options[0])-(2*customizations[customizationsCount].numParam); i < len(customizations[customizationsCount].options[0]); i += 2 {
+		for i := len(customizations[customizationsCount].options[0]) - (2 * customizations[customizationsCount].numParam); i < len(customizations[customizationsCount].options[0]); i += 2 {
 			if strings.EqualFold(param, customizations[customizationsCount].options[0][i]) {
 				fmt.Printf("Previous instance of: \"%v\" found.\n", param)
 				return tree, false
@@ -181,7 +181,7 @@ func getParam(tree []string) ([]string, bool) {
 	lineNum := 1
 	level := 0
 	scnr := bufio.NewScanner(file)
-	
+
 	for scnr.Scan() {
 		line := scnr.Text()
 
@@ -194,7 +194,7 @@ func getParam(tree []string) ([]string, bool) {
 			tree = append(tree, param)
 			customizations[customizationsCount].paramLines = append(customizations[customizationsCount].paramLines, lineNum)
 			return tree, true
-		} 
+		}
 		if strings.Contains(line, "}") { // Track tree status and nested level
 			isParent = false
 			level--
@@ -203,22 +203,22 @@ func getParam(tree []string) ([]string, bool) {
 		// Track line number
 		lineNum++
 	}
-	
+
 	// No match
 	fmt.Println("Did not find parameter:", param)
 	return tree, false
 }
 
-func getValues(tree []string, curNum int, numValues int) ([]string) {
+func getValues(tree []string, curNum int, numValues int) []string {
 	// Get values
 	var value string
 	fmt.Printf("Enter value for %v (%v/%v): ", tree[len(tree)-1], curNum+1, numValues)
 	// Use buffered reader because Scanln sucks
 	value, _ = reader.ReadString('\n') // Read to newline
-	value = strings.TrimSpace(value) // Remove newline
+	value = strings.TrimSpace(value)   // Remove newline
 
 	// Add value to tree
 	tree = append(tree, value)
-	
+
 	return tree
 }
