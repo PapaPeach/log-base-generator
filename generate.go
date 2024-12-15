@@ -43,53 +43,65 @@ func generateMainConfig() {
 	file.WriteString("alias lb_log_customization_open \"sixense_clear_bindings;sixense_write_bindings " + prefix + "_customizations.txt;con_timestamp 0;con_logfile cfg/" + prefix + "_customizations.txt\"\n")
 	file.WriteString("\n")
 
-	// Create save aliases
-	saveAlias := prefix + "_" + customizations[customizationsCount].customizationName + "_dump"
+	// Iterate through customizations and create save aliases
 	file.WriteString("//Declare customization save aliases\n")
-	file.WriteString("alias " + saveAlias + " \"\"\n")
+	for c := range customizations {
+		saveAlias := prefix + "_" + customizations[c].customizationName + "_dump"
+		file.WriteString("alias " + saveAlias + " \"\"\n")
+	}
 	file.WriteString("\n")
 
-	// Create default value aliases
-	var defaultAlias string
-	defaultBraceCount := 0
-	for i := 0; i < len(customizations[customizationsCount].options[0])-(2*customizations[customizationsCount].numParam); i++ {
-		defaultAlias += customizations[customizationsCount].options[0][i] + "{"
-		defaultBraceCount++
-	}
-	// Parameter and value
-	defaultAlias += strings.Join(customizations[customizationsCount].options[0][len(customizations[customizationsCount].options[0])-(2*customizations[customizationsCount].numParam):], " ")
-	//Close braces
-	for j := 0; j < defaultBraceCount; j++ {
-		defaultAlias += "}"
-	}
-	writeAlias := prefix + "_" + customizations[customizationsCount].customizationName + "_write"
+	// Iterate through customizations and Create default value aliases
 	file.WriteString("//Initialize default values\n")
-	file.WriteString("alias " + writeAlias + " \"echo " + defaultAlias + "\"\n")
+	for c := range customizations {
+		var defaultAlias string
+		defaultBraceCount := 0
+		for i := 0; i < len(customizations[c].options[0])-(2*customizations[c].numParam); i++ {
+			defaultAlias += customizations[c].options[0][i] + "{"
+			defaultBraceCount++
+		}
+
+		// Parameter and value
+		defaultAlias += strings.Join(customizations[c].options[0][len(customizations[c].options[0])-(2*customizations[c].numParam):], " ")
+
+		//Close braces
+		for j := 0; j < defaultBraceCount; j++ {
+			defaultAlias += "}"
+		}
+
+		writeAlias := prefix + "_" + customizations[c].customizationName + "_write"
+		file.WriteString("alias " + writeAlias + " \"echo " + defaultAlias + "\"\n")
+	}
 	file.WriteString("\n")
 
 	// Create customization definitions
 	file.WriteString("//Define customization aliases\n")
+	for c := range customizations {
+		for i := range customizations[c].options {
+			saveAlias := prefix + "_" + customizations[c].customizationName + "_dump"
+			customizationAlias := customizations[c].customizationName + strconv.Itoa(i+1)
+			writeAlias := prefix + "_" + customizations[c].customizationName + "_write"
+			var panelCode string
+			braceCount := 0
 
-	for i := range customizations[customizationsCount].options {
-		customizationAlias := customizations[customizationsCount].customizationName + strconv.Itoa(i+1)
-		var panelCode string
-		braceCount := 0
-		// Panel path
-		for j := 0; j < len(customizations[customizationsCount].options[i])-(2*customizations[customizationsCount].numParam); j++ {
-			panelCode += customizations[customizationsCount].options[i][j] + "{"
-			braceCount++
-		}
-		// Parameter and value
-		panelCode += strings.Join(customizations[customizationsCount].options[i][len(customizations[customizationsCount].options[i])-(2*customizations[customizationsCount].numParam):], " ")
-		//Close braces
-		for j := 0; j < braceCount; j++ {
-			panelCode += "}"
-		}
+			// Panel path
+			for j := 0; j < len(customizations[c].options[i])-(2*customizations[c].numParam); j++ {
+				panelCode += customizations[c].options[i][j] + "{"
+				braceCount++
+			}
 
-		// alias customizationAlias "alias saveAlias echo customizationAlias;alias writeAlias echo panelCode"
-		file.WriteString("alias " + customizationAlias +
-			" \"alias " + saveAlias + " echo " + customizationAlias +
-			";alias " + writeAlias + " echo " + panelCode + "\"\n")
+			// Parameter and value
+			panelCode += strings.Join(customizations[c].options[i][len(customizations[c].options[i])-(2*customizations[c].numParam):], " ")
+			//Close braces
+			for j := 0; j < braceCount; j++ {
+				panelCode += "}"
+			}
+
+			// alias customizationAlias "alias saveAlias echo customizationAlias;alias writeAlias echo panelCode"
+			file.WriteString("alias " + customizationAlias +
+				" \"alias " + saveAlias + " echo " + customizationAlias +
+				";alias " + writeAlias + " echo " + panelCode + "\"\n")
+		}
 	}
 }
 

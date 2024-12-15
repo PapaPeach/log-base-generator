@@ -157,13 +157,13 @@ func main() {
 				response = strings.TrimSpace(response) // Remove newline
 				if strings.EqualFold(response, "y") {
 					customizations[customizationsCount].numParam++
+					fmt.Println()
 				} else if strings.EqualFold(response, "n") {
 					moreParam = false
 				} else {
 					response = ""
 				}
 			}
-			fmt.Println()
 		}
 
 		// Get customization name
@@ -200,6 +200,8 @@ func main() {
 			response = strings.TrimSpace(response) // Remove newline
 			if strings.EqualFold(response, "y") {  // Generate more log-base customizations
 				validResponse = true
+				customizationsCount++
+				fmt.Println()
 			} else if strings.EqualFold(response, "n") { // Proceed to rest of generation
 				userDone = true
 				validResponse = true

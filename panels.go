@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -112,7 +113,7 @@ func getPanel() []string {
 
 	// Handle matches
 	if count == 1 {
-		fmt.Printf("Found %v in %v.", panel, customizations[customizationsCount].srcFile)
+		fmt.Printf("Found %v in %v.\n", panel, customizations[customizationsCount].srcFile)
 		return panelTree
 	} else if count > 1 { // Duplicates found, user input needed
 		fmt.Printf("Found %v instances of %v in %v.\n", count, panel, customizations[customizationsCount].srcFile)
@@ -131,11 +132,16 @@ func getPanel() []string {
 		}
 
 		// Recieve user selection
+		fmt.Print("Please select an option: ")
 		var option int
 		for option < 1 || option > count {
-			fmt.Print("Please select an option: ")
-			fmt.Scanln(&option)
-			if option < 1 || option > count {
+			// Use buffered reader because Scanln sucks
+			input, _ := reader.ReadString('\n') // Read to newline
+			input = strings.TrimSpace(input)    // Remove newline
+			option, err = strconv.Atoi(input)
+
+			// Validate
+			if err != nil || option < 1 || option > count {
 				fmt.Printf("Please make a selection 1 - %v: ", count)
 				option = 0
 			}
