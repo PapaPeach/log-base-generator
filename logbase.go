@@ -281,4 +281,7 @@ func main() {
 	if autoEdit == true {
 		editSource()
 	}
+
+	// Announce program is done
+	fmt.Println("Program has finished :D")
 }
