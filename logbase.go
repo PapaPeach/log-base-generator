@@ -99,6 +99,7 @@ func main() {
 			}
 		}
 
+		// TODO Handle bad panel name
 		// Get panel tree
 		customizations[customizationsCount].panelTree = getPanel()
 		if customizations[customizationsCount].panelTree == nil {

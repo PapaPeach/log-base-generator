@@ -74,7 +74,7 @@ func generateMainConfig() {
 		fmt.Printf("%v already exists, how would you like to resolve this?\n", fileName)
 		for !validResponse {
 			fmt.Println("[1] Generate code above the original contents of existing file")
-			fmt.Println("[2] Generate code to unique file to be copy + pasted manually")
+			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
 			fmt.Println("[3] Quit program without generating or modifying the file")
 			fmt.Print("Please select and option: ")
 
@@ -130,6 +130,7 @@ func generateMainConfig() {
 	file.WriteString("\n")
 
 	// Iterate through customizations and Create default value aliases
+	// TODO: Can assign defaults through shorter save aliases?
 	file.WriteString("//Initialize default values\n")
 	for c := range customizations {
 		var defaultAlias string
@@ -182,6 +183,13 @@ func generateMainConfig() {
 		}
 	}
 
+	// TODO: Call mkdir
+	// Generate aliases to execute commands in order so that no first run config is necessary
+	file.WriteString("\n//Load customizations to memory\n")
+	file.WriteString("exec " + prefix + "_customization_selection.txt\n")
+	file.WriteString("exec " + prefix + "_save\n")
+	file.WriteString("exec " + prefix + "_generate\n")
+
 	// Main config file already exists and user opted to append log-base to the top of it
 	if fileExists == true && appendToTop {
 		file.WriteString("\n//User contents\n")
@@ -204,7 +212,7 @@ func generateSaveConfig() {
 		fmt.Printf("%v already exists, how would you like to resolve this?\n", fileName)
 		for !validResponse {
 			fmt.Println("[1] Generate code above the original contents of existing file")
-			fmt.Println("[2] Generate code to unique file to be copy + pasted manually")
+			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
 			fmt.Println("[3] Quit program without generating or modifying the file")
 			fmt.Print("Please select and option: ")
 
@@ -282,7 +290,7 @@ func generateGeneratorConfig() {
 		fmt.Printf("%v already exists, how would you like to resolve this?\n", fileName)
 		for !validResponse {
 			fmt.Println("[1] Generate code above the original contents of existing file")
-			fmt.Println("[2] Generate code to unique file to be copy + pasted manually")
+			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
 			fmt.Println("[3] Quit program without generating or modifying the file")
 			fmt.Print("Please select and option: ")
 
@@ -365,7 +373,7 @@ func generateValveRc() {
 		fmt.Printf("%v already exists, how would you like to resolve this?\n", fileName)
 		for !validResponse {
 			fmt.Println("[1] Generate code above the original contents of existing file")
-			fmt.Println("[2] Generate code to unique file to be copy + pasted manually")
+			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
 			fmt.Println("[3] Quit program without generating or modifying the file")
 			fmt.Print("Please select and option: ")
 
@@ -437,7 +445,7 @@ func generateButtonCommands() {
 		fmt.Printf("%v already exists, how would you like to resolve this?\n", fileName)
 		for !validResponse {
 			fmt.Println("[1] Generate code above the original contents of existing file")
-			fmt.Println("[2] Generate code to unique file to be copy + pasted manually")
+			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
 			fmt.Println("[3] Quit program without generating or modifying the file")
 			fmt.Print("Please select and option: ")
 
@@ -489,10 +497,12 @@ func generateButtonCommands() {
 			file.WriteString("\"command\"\t\t\"engine " + customizationAlias + "\"\n")
 		}
 	}
+	file.WriteString("\nSave & apply button\n")
+	file.WriteString("\"command\"\t\t\"engine exec " + prefix + "_save;exec " + prefix + "_generate;hud_reloadscheme\"")
 
 	// Button commands file already exists and user opted to append log-base to the top of it
 	if fileExists == true && appendToTop {
-		file.WriteString("\n//User contents\n")
+		file.WriteString("\n\nUser contents\n")
 		pasteFile(file, fileContents)
 	}
 }
