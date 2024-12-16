@@ -13,7 +13,7 @@ const ProgramDir string = "custom"
 var userDone bool = false
 var curDir string
 var prefix string
-var autoComment bool
+var autoEdit bool
 var reader = bufio.NewReader(os.Stdin)
 var customizations []customization
 var customizationsCount int = 0
@@ -244,25 +244,25 @@ func main() {
 	fmt.Println()
 
 	// Confirm user would like to comment out srcFile panel lines. Comment with //lb
-	commentsConfirmed := false
-	for !commentsConfirmed {
+	editsConfirmed := false
+	for !editsConfirmed {
 		var response string
-		fmt.Print("Allow program to comment necessary lines from source file? [Y] / [N]: ")
+		fmt.Print("Allow program to edit necessary lines from source file? [Y] / [N]: ")
 		// Use buffered reader because Scanln sucks
 		response, _ = reader.ReadString('\n')  // Read to newline
 		response = strings.TrimSpace(response) // Remove newline
 		if strings.EqualFold(response, "y") {  // Allow automatic comments
-			autoComment = true
-			commentsConfirmed = true
+			autoEdit = true
+			editsConfirmed = true
 		} else if strings.EqualFold(response, "n") { // Don't allow automatic comments
-			fmt.Println("You will need to manually comment / remove lines with customized parameters or customizations will not work.")
+			fmt.Println("You will need to manually handle removing customized source lines and adding #base paths or customizations will not work.")
 			fmt.Print("Confirm? [Y] / [N]: ")
 			// Use buffered reader because Scanln sucks
 			response, _ = reader.ReadString('\n')  // Read to newline
 			response = strings.TrimSpace(response) // Remove newline
 			if strings.EqualFold(response, "y") {  // Allow automatic comments
-				autoComment = false
-				commentsConfirmed = true
+				autoEdit = false
+				editsConfirmed = true
 			}
 		}
 	}
@@ -278,7 +278,7 @@ func main() {
 	generateButtonCommands()
 
 	// Comment srcFile panel lines
-	if autoComment == true {
-		commentSource()
+	if autoEdit == true {
+		editSource()
 	}
 }

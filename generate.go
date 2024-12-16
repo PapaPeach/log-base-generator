@@ -9,14 +9,99 @@ import (
 	"strings"
 )
 
-// TODO instead of using customizations[customizationsCount]._____, increment through customizations
+func copyFile(file string) []string {
+	// Open file
+	inputFile, err := os.Open(file)
+	if err != nil {
+		fmt.Printf("Error opening %v for reading: %v\n", file, err)
+		os.Exit(1)
+	}
+
+	defer inputFile.Close()
+
+	// Create slice containing all the lines
+	var fileContents []string
+	scnr := bufio.NewScanner(inputFile)
+	for scnr.Scan() {
+		line := scnr.Text()
+		fileContents = append(fileContents, line)
+	}
+	return fileContents
+}
+
+func pasteFile(file *os.File, fileContents []string) {
+	// Rewrite file
+	/*outputFile, err := os.Create(file)
+	if err != nil {
+		fmt.Printf("Error opening %v for writing: %v\n", file, err)
+	}
+
+	defer outputFile.Close()*/
+
+	// Repopulate file
+	for i := range fileContents {
+		file.WriteString(fileContents[i])
+		if i < len(fileContents)-1 {
+			file.WriteString("\n")
+		}
+	}
+}
+
+func getUniqueFileName() string {
+	// Increment number suffix until fileName is unique
+	suffix := 1
+	filePrefix := prefix + strconv.Itoa(suffix)
+	var uniqueFileName bool
+
+	for !uniqueFileName {
+		if _, err := os.Stat("cfg/" + filePrefix + ".cfg"); err == nil { // File exists
+			filePrefix = prefix + strconv.Itoa(suffix+1)
+		} else {
+			uniqueFileName = true
+		}
+	}
+	return "cfg/" + filePrefix + ".cfg"
+}
+
 func generateMainConfig() {
 	// Open or create file
+	fileName := "cfg/" + prefix + ".cfg"
 	var fileExists bool
-	if _, err := os.Stat("cfg/" + prefix + ".cfg"); err == nil { // Handle file already exists
-		fmt.Println("Main config file exists.")
+	var appendToTop bool
+	var fileContents []string
+
+	if _, err := os.Stat(fileName); err == nil { // Handle file already exists
 		fileExists = true
-		// TODO
+
+		// Prompt user how to deal with existing file
+		var validResponse bool
+		fmt.Printf("%v already exists, how would you like to resolve this?\n", fileName)
+		for !validResponse {
+			fmt.Println("[1] Generate code above the original contents of existing file")
+			fmt.Println("[2] Generate code to unique file to be copy + pasted manually")
+			fmt.Println("[3] Quit program without generating or modifying any files")
+			fmt.Print("Please select and option: ")
+
+			// Use buffered reader because Scanln sucks
+			var response string
+			response, _ = reader.ReadString('\n')  // Read to newline
+			response = strings.TrimSpace(response) // Remove newline
+			if response == "1" {
+				appendToTop = true
+				validResponse = true
+				fileContents = copyFile(fileName)
+			} else if response == "2" {
+				appendToTop = false
+				validResponse = true
+				fileName = getUniqueFileName()
+			} else if response == "3" {
+				fmt.Println("\nProgram exiting, no files generated or modified.")
+				os.Exit(0)
+			} else {
+				fmt.Println("Invalid response, how you would like to resolve this?")
+				validResponse = false
+			}
+		}
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fileExists = false
 	} else { // Oh shit
@@ -24,12 +109,8 @@ func generateMainConfig() {
 		os.Exit(1)
 	}
 
-	if fileExists == true {
-		os.Exit(1)
-	}
-
 	// Create main alias file
-	file, err := os.Create("cfg/" + prefix + ".cfg")
+	file, err := os.Create(fileName)
 	if err != nil {
 		fmt.Println("Error creating main config file:", err)
 		os.Exit(1)
@@ -102,6 +183,12 @@ func generateMainConfig() {
 				" \"alias " + saveAlias + " echo " + customizationAlias +
 				";alias " + writeAlias + " echo " + panelCode + "\"\n")
 		}
+	}
+
+	// Main config file already exists and user opted to append log-base to the top of it
+	if fileExists == true && appendToTop {
+		file.WriteString("\n//User contents\n")
+		pasteFile(file, fileContents)
 	}
 }
 
@@ -224,7 +311,6 @@ func generateValveRc() {
 	defer file.Close()
 
 	// Create valve.rc with default values and main config
-	file.WriteString("//lb\n")
 	file.WriteString("r_decal_cullsize 1\n")
 	file.WriteString("exec joystick.cfg\n")
 	file.WriteString("exec autoexec.cfg\n")
@@ -288,7 +374,7 @@ func getBasePath(c int) string {
 	return basePath
 }
 
-func commentSource() {
+func editSource() {
 	for c := range customizations {
 		// Open source file
 		inputFile, err := os.Open(customizations[c].srcFile)
