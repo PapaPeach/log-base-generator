@@ -344,4 +344,9 @@ func main() {
 
 	// Announce program is done
 	fmt.Println("Program has finished :D")
+	fmt.Println("Press Enter to exit the program.")
+	anyKey, _ := reader.ReadString('\n')
+	if anyKey != "" {
+		os.Exit(0)
+	}
 }

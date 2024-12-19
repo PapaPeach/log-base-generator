@@ -70,35 +70,26 @@ func generateMainConfig() {
 		fileExists = true
 
 		// Prompt user how to deal with existing file
-		var validResponse bool
-		fmt.Printf("%v already exists, how would you like to resolve this?\n", fileName)
-		for !validResponse {
-			fmt.Println("[1] Generate code above the original contents of existing file")
-			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
-			fmt.Println("[3] Quit program without generating or modifying the file")
-			fmt.Print("Please select an option: ")
-
-			// Use buffered reader because Scanln sucks
-			var response string
-			response, _ = reader.ReadString('\n')  // Read to newline
-			response = strings.TrimSpace(response) // Remove newline
-			if response == "1" {
-				appendToTop = true
-				validResponse = true
-				fileContents = copyFile(fileName)
-			} else if response == "2" {
-				appendToTop = false
-				validResponse = true
-				fileName = "cfg/" + getUniqueFilePrefix(prefix) + ".cfg"
-			} else if response == "3" {
-				fmt.Println("\nProgram exiting, the file was not generated or modified.")
-				os.Exit(0)
-			} else {
-				fmt.Println("Invalid response, how you would like to resolve this?")
-				validResponse = false
-			}
-			fmt.Println()
+		prompt := fmt.Sprintf("%v already exists, how would you like to resolve this?", fileName)
+		options := []map[string]string{
+			{"1": "Generate code above the original contents of existing file"},
+			{"2": "Generate code to unique file to resolve conflict manually"},
+			{"3": "Skip generating or modifying this file"},
 		}
+		failText := "is an invalid response.\n\nHow would you like to resolve this?"
+		response := getResponse(prompt, failText, options)
+		if response == "1" {
+			appendToTop = true
+			fileContents = copyFile(fileName)
+		} else if response == "2" {
+			appendToTop = false
+			fileName = "cfg/" + getUniqueFilePrefix(prefix) + ".cfg"
+		} else if response == "3" {
+			fmt.Println("Skipping file. The file was not generated or modified.")
+			fmt.Println()
+			return
+		}
+		fmt.Println()
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fileExists = false
 	} else { // Oh shit
@@ -208,34 +199,24 @@ func generateSaveConfig() {
 		fileExists = true
 
 		// Prompt user how to deal with existing file
-		var validResponse bool
-		fmt.Printf("%v already exists, how would you like to resolve this?\n", fileName)
-		for !validResponse {
-			fmt.Println("[1] Generate code above the original contents of existing file")
-			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
-			fmt.Println("[3] Quit program without generating or modifying the file")
-			fmt.Print("Please select an option: ")
-
-			// Use buffered reader because Scanln sucks
-			var response string
-			response, _ = reader.ReadString('\n')  // Read to newline
-			response = strings.TrimSpace(response) // Remove newline
-			if response == "1" {
-				appendToTop = true
-				validResponse = true
-				fileContents = copyFile(fileName)
-			} else if response == "2" {
-				appendToTop = false
-				validResponse = true
-				fileName = "cfg/" + getUniqueFilePrefix(prefix+"_save") + ".cfg"
-			} else if response == "3" {
-				fmt.Println("\nProgram exiting, the file was not generated or modified.")
-				os.Exit(0)
-			} else {
-				fmt.Println("Invalid response, how you would like to resolve this?")
-				validResponse = false
-			}
+		prompt := fmt.Sprintf("%v already exists, how would you like to resolve this?", fileName)
+		options := []map[string]string{
+			{"1": "Generate code above the original contents of existing file"},
+			{"2": "Generate code to unique file to resolve conflict manually"},
+			{"3": "Skip generating or modifying this file"},
+		}
+		failText := "is an invalid response.\n\nHow would you like to resolve this?"
+		response := getResponse(prompt, failText, options)
+		if response == "1" {
+			appendToTop = true
+			fileContents = copyFile(fileName)
+		} else if response == "2" {
+			appendToTop = false
+			fileName = "cfg/" + getUniqueFilePrefix(prefix+"_save") + ".cfg"
+		} else if response == "3" {
+			fmt.Println("Skipping file. The file was not generated or modified.")
 			fmt.Println()
+			return
 		}
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fileExists = false
@@ -286,34 +267,24 @@ func generateGeneratorConfig() {
 		fileExists = true
 
 		// Prompt user how to deal with existing file
-		var validResponse bool
-		fmt.Printf("%v already exists, how would you like to resolve this?\n", fileName)
-		for !validResponse {
-			fmt.Println("[1] Generate code above the original contents of existing file")
-			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
-			fmt.Println("[3] Quit program without generating or modifying the file")
-			fmt.Print("Please select an option: ")
-
-			// Use buffered reader because Scanln sucks
-			var response string
-			response, _ = reader.ReadString('\n')  // Read to newline
-			response = strings.TrimSpace(response) // Remove newline
-			if response == "1" {
-				appendToTop = true
-				validResponse = true
-				fileContents = copyFile(fileName)
-			} else if response == "2" {
-				appendToTop = false
-				validResponse = true
-				fileName = "cfg/" + getUniqueFilePrefix(prefix+"_generate") + ".cfg"
-			} else if response == "3" {
-				fmt.Println("\nProgram exiting, the file was not generated or modified.")
-				os.Exit(0)
-			} else {
-				fmt.Println("Invalid response, how you would like to resolve this?")
-				validResponse = false
-			}
+		prompt := fmt.Sprintf("%v already exists, how would you like to resolve this?", fileName)
+		options := []map[string]string{
+			{"1": "Generate code above the original contents of existing file"},
+			{"2": "Generate code to unique file to resolve conflict manually"},
+			{"3": "Skip generating or modifying this file"},
+		}
+		failText := "is an invalid response.\n\nHow would you like to resolve this?"
+		response := getResponse(prompt, failText, options)
+		if response == "1" {
+			appendToTop = true
+			fileContents = copyFile(fileName)
+		} else if response == "2" {
+			appendToTop = false
+			fileName = "cfg/" + getUniqueFilePrefix(prefix+"_generate") + ".cfg"
+		} else if response == "3" {
+			fmt.Println("Skipping file. The file was not generated or modified.")
 			fmt.Println()
+			return
 		}
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fileExists = false
@@ -369,34 +340,24 @@ func generateValveRc() {
 		fileExists = true
 
 		// Prompt user how to deal with existing file
-		var validResponse bool
-		fmt.Printf("%v already exists, how would you like to resolve this?\n", fileName)
-		for !validResponse {
-			fmt.Println("[1] Generate code above the original contents of existing file")
-			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
-			fmt.Println("[3] Quit program without generating or modifying the file")
-			fmt.Print("Please select an option: ")
-
-			// Use buffered reader because Scanln sucks
-			var response string
-			response, _ = reader.ReadString('\n')  // Read to newline
-			response = strings.TrimSpace(response) // Remove newline
-			if response == "1" {
-				appendToTop = true
-				validResponse = true
-				fileContents = copyFile(fileName)
-			} else if response == "2" {
-				appendToTop = false
-				validResponse = true
-				fileName = "cfg/" + getUniqueFilePrefix("valve") + ".rc"
-			} else if response == "3" {
-				fmt.Println("\nProgram exiting, the file was not generated or modified.")
-				os.Exit(0)
-			} else {
-				fmt.Println("Invalid response, how you would like to resolve this?")
-				validResponse = false
-			}
+		prompt := fmt.Sprintf("%v already exists, how would you like to resolve this?", fileName)
+		options := []map[string]string{
+			{"1": "Generate code above the original contents of existing file"},
+			{"2": "Generate code to unique file to resolve conflict manually"},
+			{"3": "Skip generating or modifying this file"},
+		}
+		failText := "is an invalid response.\n\nHow would you like to resolve this?"
+		response := getResponse(prompt, failText, options)
+		if response == "1" {
+			appendToTop = true
+			fileContents = copyFile(fileName)
+		} else if response == "2" {
+			appendToTop = false
+			fileName = "cfg/" + getUniqueFilePrefix("valve") + ".rc"
+		} else if response == "3" {
+			fmt.Println("Skipping file. The file was not generated or modified.")
 			fmt.Println()
+			return
 		}
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fileExists = false
@@ -441,34 +402,24 @@ func generateButtonCommands() {
 		fileExists = true
 
 		// Prompt user how to deal with existing file
-		var validResponse bool
-		fmt.Printf("%v already exists, how would you like to resolve this?\n", fileName)
-		for !validResponse {
-			fmt.Println("[1] Generate code above the original contents of existing file")
-			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
-			fmt.Println("[3] Quit program without generating or modifying the file")
-			fmt.Print("Please select an option: ")
-
-			// Use buffered reader because Scanln sucks
-			var response string
-			response, _ = reader.ReadString('\n')  // Read to newline
-			response = strings.TrimSpace(response) // Remove newline
-			if response == "1" {
-				appendToTop = true
-				validResponse = true
-				fileContents = copyFile(fileName)
-			} else if response == "2" {
-				appendToTop = false
-				validResponse = true
-				fileName = getUniqueFilePrefix("logbase_button_copypasta") + ".txt"
-			} else if response == "3" {
-				fmt.Println("\nProgram exiting, the file was not generated or modified.")
-				os.Exit(0)
-			} else {
-				fmt.Println("Invalid response, how you would like to resolve this?")
-				validResponse = false
-			}
+		prompt := fmt.Sprintf("%v already exists, how would you like to resolve this?", fileName)
+		options := []map[string]string{
+			{"1": "Generate code above the original contents of existing file"},
+			{"2": "Generate code to unique file to resolve conflict manually"},
+			{"3": "Skip generating or modifying this file"},
+		}
+		failText := "is an invalid response.\n\nHow would you like to resolve this?"
+		response := getResponse(prompt, failText, options)
+		if response == "1" {
+			appendToTop = true
+			fileContents = copyFile(fileName)
+		} else if response == "2" {
+			appendToTop = false
+			fileName = getUniqueFilePrefix("logbase_button_copypasta") + ".txt"
+		} else if response == "3" {
+			fmt.Println("Skipping file. The file was not generated or modified.")
 			fmt.Println()
+			return
 		}
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fileExists = false
