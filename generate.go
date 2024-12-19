@@ -76,7 +76,7 @@ func generateMainConfig() {
 			fmt.Println("[1] Generate code above the original contents of existing file")
 			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
 			fmt.Println("[3] Quit program without generating or modifying the file")
-			fmt.Print("Please select and option: ")
+			fmt.Print("Please select an option: ")
 
 			// Use buffered reader because Scanln sucks
 			var response string
@@ -214,7 +214,7 @@ func generateSaveConfig() {
 			fmt.Println("[1] Generate code above the original contents of existing file")
 			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
 			fmt.Println("[3] Quit program without generating or modifying the file")
-			fmt.Print("Please select and option: ")
+			fmt.Print("Please select an option: ")
 
 			// Use buffered reader because Scanln sucks
 			var response string
@@ -292,7 +292,7 @@ func generateGeneratorConfig() {
 			fmt.Println("[1] Generate code above the original contents of existing file")
 			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
 			fmt.Println("[3] Quit program without generating or modifying the file")
-			fmt.Print("Please select and option: ")
+			fmt.Print("Please select an option: ")
 
 			// Use buffered reader because Scanln sucks
 			var response string
@@ -375,7 +375,7 @@ func generateValveRc() {
 			fmt.Println("[1] Generate code above the original contents of existing file")
 			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
 			fmt.Println("[3] Quit program without generating or modifying the file")
-			fmt.Print("Please select and option: ")
+			fmt.Print("Please select an option: ")
 
 			// Use buffered reader because Scanln sucks
 			var response string
@@ -447,7 +447,7 @@ func generateButtonCommands() {
 			fmt.Println("[1] Generate code above the original contents of existing file")
 			fmt.Println("[2] Generate code to unique file to resolve conflict manually")
 			fmt.Println("[3] Quit program without generating or modifying the file")
-			fmt.Print("Please select and option: ")
+			fmt.Print("Please select an option: ")
 
 			// Use buffered reader because Scanln sucks
 			var response string

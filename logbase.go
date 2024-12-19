@@ -76,6 +76,48 @@ func getSourceFile() bool {
 	return true
 }
 
+func getResponse(prompt string, failText string, options []map[string]string) string {
+	// Get slice containing all options available for selection
+	validResponse := false
+	hasKeyText := false
+
+	fmt.Print(prompt)
+
+	// Loop until we get a response that matches our expectation
+	for !validResponse {
+		var response string
+
+		// Check if option has an explaination assiociated with it, if so display it and ask for selection
+		for o := range options {
+			for key, keyText := range options[o] {
+				if len(keyText) != 0 {
+					fmt.Printf("\n[%v] %v", key, keyText)
+					hasKeyText = true
+				}
+			}
+		}
+		if hasKeyText {
+			fmt.Print("\nPlease select an option: ")
+		}
+
+		// Use buffered reader for getting input because Scanln sucks
+		response, _ = reader.ReadString('\n')  // Read to newline
+		response = strings.TrimSpace(response) // Remove newline
+
+		// Compare user input to defined keys and only return if it matches
+		for o := range options {
+			for key := range options[o] {
+				if strings.EqualFold(response, key) {
+					validResponse = true
+					return key
+				}
+			}
+		}
+		fmt.Printf("\"%v\" %v", response, failText)
+	}
+	return ""
+}
+
 func main() {
 	// Validate program location
 	if !locationCheck() {
@@ -99,12 +141,13 @@ func main() {
 			}
 		}
 
-		// TODO Handle bad panel name
 		// Get panel tree
-		customizations[customizationsCount].panelTree = getPanel()
-		if customizations[customizationsCount].panelTree == nil {
-			fmt.Println("panelTree returned as nil")
-			os.Exit(1)
+		validPanel := false
+		for !validPanel {
+			customizations[customizationsCount].panelTree = getPanel()
+			if customizations[customizationsCount].panelTree != nil { // If panel is invalid
+				validPanel = true
+			}
 		}
 		fmt.Println()
 
@@ -138,6 +181,9 @@ func main() {
 			for numValues < 2 {
 				fmt.Print("Enter quantity of values to set: ")
 				fmt.Scanln(&numValues)
+				if numValues < 2 {
+					fmt.Println("Must set at least 2 values.")
+				}
 			}
 			// Get values
 			for i := 0; i < numValues; i++ {
@@ -151,20 +197,18 @@ func main() {
 			}
 
 			// Ask for more parameters
-			var response string
-			for len(response) == 0 {
-				fmt.Print("Add more parameters to this customization? [Y] / [N]: ")
-				// Use buffered reader because Scanln sucks
-				response, _ = reader.ReadString('\n')  // Read to newline
-				response = strings.TrimSpace(response) // Remove newline
-				if strings.EqualFold(response, "y") {
-					customizations[customizationsCount].numParam++
-					fmt.Println()
-				} else if strings.EqualFold(response, "n") {
-					moreParam = false
-				} else {
-					response = ""
-				}
+			prompt := "Add more parameters to this customization? [Y] / [N]: "
+			options := []map[string]string{
+				{"y": ""},
+				{"n": ""},
+			}
+			failText := "is an invalid response. [Y] / [N]: "
+			response := getResponse(prompt, failText, options)
+			if response == "y" {
+				customizations[customizationsCount].numParam++
+				fmt.Println()
+			} else if response == "n" {
+				moreParam = false
 			}
 		}
 
@@ -175,13 +219,11 @@ func main() {
 			customizations[customizationsCount].customizationName, _ = reader.ReadString('\n')                                               // Read to newline
 			customizations[customizationsCount].customizationName = strings.TrimSpace(customizations[customizationsCount].customizationName) // Remove newline
 			// Validate
-			if strings.Contains(customizations[customizationsCount].customizationName, " ") {
-				fmt.Println("Name cannot contain spaces. Please try again.")
-				fmt.Println()
+			if len(customizations[customizationsCount].customizationName) < 3 {
+				fmt.Printf("\"%v\" is an invalid name. Name must be longer than 3 characters.\n", customizations[customizationsCount].customizationName)
+			} else if strings.Contains(customizations[customizationsCount].customizationName, " ") {
+				fmt.Printf("\"%v\" is an invalid name. Name cannot contain any spaces.\n", customizations[customizationsCount].customizationName)
 				customizations[customizationsCount].customizationName = ""
-			} else if len(customizations[customizationsCount].customizationName) < 3 {
-				fmt.Println("Name must be more than 3 characters. Please try again.")
-				fmt.Println()
 			} else { // Passed
 				customizations[customizationsCount].customizationName = strings.ToLower(customizations[customizationsCount].customizationName)
 			}
@@ -193,23 +235,18 @@ func main() {
 		// Ask if user has more panels they'd like to edit in srcFile. Y = loop, N = break
 
 		// Ask if user has more files they'd like to generate in directory
-		validResponse := false
-		for !validResponse {
-			var response string
-			fmt.Print("Do you have more customizations to generate log-bases for? [Y] / [N]: ")
-			// Use buffered reader because Scanln sucks
-			response, _ = reader.ReadString('\n')  // Read to newline
-			response = strings.TrimSpace(response) // Remove newline
-			if strings.EqualFold(response, "y") {  // Generate more log-base customizations
-				validResponse = true
-				customizationsCount++
-				fmt.Println()
-			} else if strings.EqualFold(response, "n") { // Proceed to rest of generation
-				userDone = true
-				validResponse = true
-			} else {
-				fmt.Printf("\"%v\" is not a valid response.\n", response)
-			}
+		prompt := "Do you have more customizations to generate log-bases for? [Y] / [N]: "
+		options := []map[string]string{
+			{"y": ""},
+			{"n": ""},
+		}
+		failText := "is an invalid response. [Y] / [N]: "
+		response := getResponse(prompt, failText, options)
+		if response == "y" { // Generate more log-base customizations
+			customizationsCount++
+			fmt.Println()
+		} else if response == "n" { // Proceed to rest of generation
+			userDone = true
 		}
 	}
 	fmt.Println()
@@ -219,26 +256,44 @@ func main() {
 	prefix = ""
 	for len(prefix) == 0 {
 		// Use autodetected hud name as prefix
-		var response string
-		fmt.Printf("HUD name \"%v\" found, would you like to use that as your config prefix? [Y] / [N]: ", filepath.Base(curDir))
-		// Use buffered reader because Scanln sucks
-		response, _ = reader.ReadString('\n')  // Read to newline
-		response = strings.TrimSpace(response) // Remove newline
-		if strings.EqualFold(response, "y") {
+		prefixPrompt := fmt.Sprintf("HUD name \"%v\" found, would you like to use that as your config prefix? [Y] / [N]: ", filepath.Base(curDir))
+		prefixOptions := []map[string]string{
+			{"y": ""},
+			{"n": ""},
+		}
+		prefixFailText := "is an invalid response. [Y] / [N]: "
+		response := getResponse(prefixPrompt, prefixFailText, prefixOptions)
+		if response == "y" { // Use HUD name as prefix
 			prefix = filepath.Base(curDir)
-		} else { // Use custom prefix
-			fmt.Print("Enter custom prefix: ")
-			fmt.Scanln(&response)
-			prefix = response
+		} else if response == "n" { // Use custom prefix if valid
+			validPrefix := false
+			for !validPrefix {
+				fmt.Print("Enter custom prefix: ")
+				// Use buffered reader because Scanln sucks
+				response, _ = reader.ReadString('\n')  // Read to newline
+				response = strings.TrimSpace(response) // Remove newline
+				if len(response) < 3 {
+					fmt.Printf("\"%v\" is an invalid prefix. Prefix must be longer than 3 characters.\n", response)
+					prefix = ""
+				} else if strings.Contains(response, " ") {
+					fmt.Printf("\"%v\" is an invalid prefix. Prefix cannot contain any spaces.\n", response)
+					prefix = ""
+				} else {
+					validPrefix = true
+					prefix = response
+				}
+			}
 		}
 
 		// Confirm selection
-		fmt.Printf("Config files will generate using prefix: %v\nExample: hud/cfg/%v_generate.cfg\n", prefix, prefix)
-		fmt.Print("Continue? [Y] / [N]: ")
-		// Use buffered reader because Scanln sucks
-		response, _ = reader.ReadString('\n')  // Read to newline
-		response = strings.TrimSpace(response) // Remove newline
-		if !strings.EqualFold(response, "y") {
+		confirmPrompt := fmt.Sprintf("Config files will generate using prefix: %v\nExample: hud/cfg/%v_generate.cfg\nContinue? [Y] / [N]: ", prefix, prefix)
+		confirmOptions := []map[string]string{
+			{"y": ""},
+			{"n": ""},
+		}
+		confirmFailText := "is an invalid response. [Y] / [N]: "
+		response = getResponse(confirmPrompt, confirmFailText, confirmOptions)
+		if response == "n" { // Reset prefix and restart prefix selection prompts
 			prefix = ""
 		}
 	}
@@ -247,21 +302,25 @@ func main() {
 	// Confirm user would like to comment out srcFile panel lines. Comment with //lb
 	editsConfirmed := false
 	for !editsConfirmed {
-		var response string
-		fmt.Print("Allow program to edit necessary lines from source file? [Y] / [N]: ")
-		// Use buffered reader because Scanln sucks
-		response, _ = reader.ReadString('\n')  // Read to newline
-		response = strings.TrimSpace(response) // Remove newline
-		if strings.EqualFold(response, "y") {  // Allow automatic comments
+		prompt := "Allow program to edit necessary lines from source file? [Y] / [N]: "
+		options := []map[string]string{
+			{"y": ""},
+			{"n": ""},
+		}
+		failText := "is an invalid response. [Y] / [N]: "
+		response := getResponse(prompt, failText, options)
+		if response == "y" { // Allow automated editing
 			autoEdit = true
 			editsConfirmed = true
-		} else if strings.EqualFold(response, "n") { // Don't allow automatic comments
-			fmt.Println("You will need to manually handle removing customized source lines and adding #base paths or customizations will not work.")
-			fmt.Print("Confirm? [Y] / [N]: ")
-			// Use buffered reader because Scanln sucks
-			response, _ = reader.ReadString('\n')  // Read to newline
-			response = strings.TrimSpace(response) // Remove newline
-			if strings.EqualFold(response, "y") {  // Allow automatic comments
+		} else if response == "n" { // Don't allow automated editing
+			prompt := ("You will need to manually handle removing customized source lines and adding #base paths or customizations will not work.\nConfirm? [Y] / [N]: ")
+			options := []map[string]string{
+				{"y": ""},
+				{"n": ""},
+			}
+			failText := "is an invalid response. [Y] / [N]: "
+			response := getResponse(prompt, failText, options)
+			if response == "y" { // Confirm user will manually handle it
 				autoEdit = false
 				editsConfirmed = true
 			}
