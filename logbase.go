@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -25,6 +26,7 @@ type customization struct {
 	paramLines        []int
 	options           []([]string)
 	customizationName string
+	siblings          []int
 }
 
 func locationCheck() bool {
@@ -90,7 +92,7 @@ func getResponse(prompt string, failText string, options []map[string]string) st
 		// Check if option has an explaination assiociated with it, if so display it and ask for selection
 		for o := range options {
 			for key, keyText := range options[o] {
-				if len(keyText) != 0 {
+				if len(keyText) > 0 {
 					fmt.Printf("\n[%v] %v", key, keyText)
 					hasKeyText = true
 				}
@@ -230,9 +232,52 @@ func main() {
 		}
 		fmt.Println()
 
-		// Set default parameter value
+		// Check if panel should be a sibling, only ask if customizationsCount > 1
+		if customizationsCount > 0 {
+			prompt := fmt.Sprintf("Should %v be used in conjuntion with another panel customization? [Y] / [N]: ", customizations[customizationsCount].customizationName)
+			options := []map[string]string{
+				{"y": ""},
+				{"n": ""},
+			}
+			failText := "is an invalid response. [Y] / [N]: "
+			response := getResponse(prompt, failText, options)
+			if response == "y" {
+				if customizationsCount == 1 { // If there is only one possible sibling
+					customizations[0].siblings = append(customizations[0].siblings, customizationsCount)
+					// Indicate that current customization is a younger sibling
+					customizations[customizationsCount].siblings = append(customizations[customizationsCount].siblings, 0)
+				} else { // If the user needs to select from several possible siblings
+					prompt := fmt.Sprintf("Found %v possible siblings:", customizationsCount)
+					options := []map[string]string{}
+					// Incrementally create options of previous customization names
+					for i := range customizationsCount {
+						options = append(options, map[string]string{strconv.Itoa(i + 1): customizations[i].customizationName})
+					}
+					failText := fmt.Sprintf("is an invalid response. Please make a selection 1 - %v: ", customizationsCount)
+					response := getResponse(prompt, failText, options)
 
-		// Ask if user has more panels they'd like to edit in srcFile. Y = loop, N = break
+					// Assign to sibling accordingly
+					siblingIndex, err := strconv.Atoi(response)
+					if err != nil {
+						fmt.Println("Error converting selection to int: ", err)
+						os.Exit(1)
+					}
+					siblingIndex--
+					// Assign sibling to eldest sibling by detecting if selected customization has an older sibling
+					if len(customizations[siblingIndex].siblings) > 0 && customizations[siblingIndex].siblings[0] < siblingIndex {
+						siblingIndex = customizations[siblingIndex].siblings[0]
+					}
+					customizations[siblingIndex].siblings = append(customizations[siblingIndex].siblings, customizationsCount)
+					// Indicate that current customization is a younger sibling
+					customizations[customizationsCount].siblings = append(customizations[customizationsCount].siblings, siblingIndex)
+				}
+			}
+			fmt.Println()
+		}
+
+		// TODO: Set default parameter value
+
+		// TODO: Ask if user has more panels they'd like to edit in srcFile. Y = loop, N = break
 
 		// Ask if user has more files they'd like to generate in directory
 		prompt := "Do you have more customizations to generate log-bases for? [Y] / [N]: "
@@ -251,8 +296,10 @@ func main() {
 	}
 	fmt.Println()
 
-	// Search for existing hud/cfg/_.cfg file containing "sixense_clear_bindings;sixense_write_bindings _.txt" || "alias lb_log_open"
+	// TODO: Search for existing hud/cfg/_.cfg file containing "sixense_clear_bindings;sixense_write_bindings _.txt" || "alias lb_log_open"
 	// If exists: prompt user to generate aliases there. Else ask user if they'd like to use hud name as file prefix, or custom prefix
+
+	// Get config prefix
 	prefix = ""
 	for len(prefix) == 0 {
 		// Use autodetected hud name as prefix
@@ -327,6 +374,11 @@ func main() {
 		}
 	}
 	fmt.Println()
+
+	// TESTING
+	for i := range customizationsCount + 1 {
+		fmt.Printf("%v: %v\n", customizations[i].customizationName, customizations[i].siblings)
+	}
 
 	// Create cfg directory if it doesn't already exist
 	checkCfg()

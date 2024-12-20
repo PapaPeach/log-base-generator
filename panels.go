@@ -31,31 +31,32 @@ func getPanel() []string {
 	var panelTree []string
 	scnr := bufio.NewScanner(file)
 
-	// Find panel
+	// Create slice of all panelsFind panel
 	for scnr.Scan() {
 		line := scnr.Text()
 		words := strings.Fields(line)
-		wordCounter := 0
 
 		for _, word := range words {
 			// Go to next line if commented
 			if strings.HasPrefix(word, "//") {
 				break
-			}
-
-			if word == `{` || strings.HasPrefix(word, "{") { // Count nested level
+			} else if word == `{` || strings.HasPrefix(word, "{") { // Count nested level
 				panels = append(panels, prevWord)
 				levels = append(levels, level)
 				level++
-			} else if wordCounter == 0 && (strings.EqualFold(word, panel) || strings.EqualFold(word, "\""+panel+"\"")) { // Check if panel matches current word
-				panel = word // Set panel var to actual panel title
-				count++
 			} else if word == `}` || strings.HasSuffix(word, "}") { // Manage lower nested level
 				level--
 			}
 
 			prevWord = word
-			wordCounter++
+		}
+	}
+
+	// Search for specified panel in list of all panels
+	for i := range panels {
+		if strings.EqualFold(panels[i], panel) || strings.EqualFold(panels[i], "\""+panel+"\"") {
+			panel = panels[i] // Set panel var to name of actual panel for fanciness
+			count++
 		}
 	}
 
