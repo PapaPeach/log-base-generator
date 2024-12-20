@@ -456,11 +456,25 @@ func generateButtonCommands() {
 	file.WriteString("This file contains the command parameter and value for each unique customization option.\n")
 	file.WriteString("Create your button as normal, then copy + paste the button code in the appropriate location.\n")
 	file.WriteString("You will have to handle the aesthetics and ActionSignalLevel on your own.\n")
+
+	// Increment through customizations and generate alias for them
+	countToDisplay := 1
 	for c := range customizations {
-		file.WriteString("\nCustomization " + strconv.Itoa(c+1) + " buttons\n")
-		for i := range customizations[c].options {
-			customizationAlias := customizations[c].customizationName + strconv.Itoa(i+1)
-			file.WriteString("\"command\"\t\t\"engine " + customizationAlias + "\"\n")
+		// Only generate unique button for eldest siblings or independent customizations
+		if len(customizations[c].siblings) == 0 || customizations[c].siblings[0] > c {
+			file.WriteString("\nCustomization " + strconv.Itoa(countToDisplay) + " buttons\n")
+			// Incrememnt through options for customization and create alias for each option
+			for i := range customizations[c].options {
+				customizationAlias := customizations[c].customizationName + strconv.Itoa(i+1)
+				// Add younger sibling aliases to eldest button alias
+				if len(customizations[c].siblings) > 0 {
+					for s := range customizations[c].siblings {
+						customizationAlias += ";" + customizations[customizations[c].siblings[s]].customizationName + strconv.Itoa(i+1)
+					}
+				}
+				file.WriteString("\"command\"\t\t\"engine " + customizationAlias + "\"\n")
+			}
+			countToDisplay++
 		}
 	}
 	file.WriteString("\nSave & apply button\n")
