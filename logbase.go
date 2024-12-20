@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -30,21 +31,15 @@ type customization struct {
 }
 
 func locationCheck() bool {
-	// Check if program is in the right directory
-	var err error
-	curDir, err = os.Getwd()
-	if err != nil {
-		fmt.Println("Error getting current directory:", err)
-		return false
-	}
-
-	parentDir := filepath.Dir(curDir)
-
-	if filepath.Base(parentDir) == ProgramDir {
+	// Check if program is in the right directory by checking if info.vdf exists
+	if _, err := os.Stat("info.vdf"); err == nil { // Handle file already exists
 		return true
+	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
+		fmt.Println("Log-Base Generator is in the wrong location.\nPlease put it in your HUD's root directory, where info.vdf is located.")
+		return false
+	} else {
+		fmt.Println("Error getting program location:", err)
 	}
-
-	fmt.Println("Log-Base Generator is in the wrong location.\nPlease put it in tf/custom/yourHud")
 	return false
 }
 
@@ -123,7 +118,6 @@ func getResponse(prompt string, failText string, options []map[string]string) st
 func main() {
 	// Validate program location
 	if !locationCheck() {
-		fmt.Println("Program is in the wrong location. Please place it in your rood Hud folder, where info.vdf is located.")
 		os.Exit(1)
 	}
 	fmt.Println("Program passed location check.")
