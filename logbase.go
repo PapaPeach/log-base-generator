@@ -226,11 +226,16 @@ func main() {
 			} else if strings.Contains(customizations[customizationsCount].customizationName, " ") {
 				fmt.Printf("\"%v\" is an invalid name. Name cannot contain any spaces.\n", customizations[customizationsCount].customizationName)
 				customizations[customizationsCount].customizationName = ""
-			} else { // Passed
+			} else { // Passed easy checks, now check for duplicate names
 				customizations[customizationsCount].customizationName = strings.ToLower(customizations[customizationsCount].customizationName)
+				for i := range customizationsCount {
+					if customizations[customizationsCount].customizationName == customizations[i].customizationName {
+						fmt.Printf("\"%v\" is an invalid name. It matches a previously assigned name.\n", customizations[customizationsCount].customizationName)
+						customizations[customizationsCount].customizationName = ""
+					}
+				}
 			}
 		}
-		fmt.Println()
 
 		// Check if panel should be a sibling, only ask if customizationsCount > 1
 		if customizationsCount > 0 {
@@ -272,7 +277,6 @@ func main() {
 					customizations[customizationsCount].siblings = append(customizations[customizationsCount].siblings, siblingIndex)
 				}
 			}
-			fmt.Println()
 		}
 
 		// TODO: Set default parameter value
@@ -280,6 +284,7 @@ func main() {
 		// TODO: Ask if user has more panels they'd like to edit in srcFile. Y = loop, N = break
 
 		// Ask if user has more files they'd like to generate in directory
+		fmt.Println()
 		prompt := "Do you have more customizations to generate log-bases for? [Y] / [N]: "
 		options := []map[string]string{
 			{"y": ""},
@@ -374,11 +379,6 @@ func main() {
 		}
 	}
 	fmt.Println()
-
-	// TESTING
-	for i := range customizationsCount + 1 {
-		fmt.Printf("%v: %v\n", customizations[i].customizationName, customizations[i].siblings)
-	}
 
 	// Create cfg directory if it doesn't already exist
 	checkCfg()
