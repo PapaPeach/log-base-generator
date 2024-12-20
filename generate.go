@@ -188,7 +188,7 @@ func generateMainConfig() {
 	// Generate aliases to execute commands in order so that no first run config is necessary
 	file.WriteString("\n//Load customizations to memory\n")
 	file.WriteString("lb_mkdir\n")
-	file.WriteString("exec " + prefix + "_customization_selection.txt\n")
+	file.WriteString("exec huds/" + prefix + "_customization_selection.txt\n")
 	file.WriteString("exec " + prefix + "_save\n")
 	file.WriteString("exec " + prefix + "_generate\n")
 

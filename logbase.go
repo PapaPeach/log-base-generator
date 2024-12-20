@@ -237,7 +237,7 @@ func main() {
 
 		// Check if panel should be a sibling, only ask if customizationsCount > 1
 		if customizationsCount > 0 {
-			prompt := fmt.Sprintf("Should %v be used in conjuntion with another panel customization? [Y] / [N]: ", customizations[customizationsCount].customizationName)
+			prompt := fmt.Sprintf("Should %v be used in conjuntion with a previous panel customization? [Y] / [N]: ", customizations[customizationsCount].customizationName)
 			options := []map[string]string{
 				{"y": ""},
 				{"n": ""},
