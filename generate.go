@@ -537,12 +537,6 @@ func editSource() {
 
 		// Close at end of loop!
 
-		// Added #base path to top of file if not already there
-		basePath := getBasePath(c)
-		if !strings.Contains(fileContents[0], basePath) {
-			outputFile.WriteString("#base \"" + basePath + "\"\n\n")
-		}
-
 		// Repopulate file
 		for i := range fileContents {
 			outputFile.WriteString(fileContents[i])
@@ -552,5 +546,25 @@ func editSource() {
 		}
 		inputFile.Close()
 		outputFile.Close()
+	}
+
+	// After commenting all necessary lines, add #base path to top of files if not already there
+	for c := range customizations {
+		fileContents := copyFile(customizations[c].srcFile)
+
+		// Added #base path to top of file if not already there
+		basePath := getBasePath(c)
+		if !strings.Contains(fileContents[0], basePath) {
+			// Rewrite file with #base
+			outputFile, err := os.Create(customizations[c].srcFile)
+			if err != nil {
+				fmt.Println("Error opening file for writing #base:", err)
+			}
+
+			outputFile.WriteString("#base \"" + basePath + "\"\n\n")
+			pasteFile(outputFile, fileContents)
+
+			outputFile.Close()
+		}
 	}
 }

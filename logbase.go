@@ -33,6 +33,10 @@ type customization struct {
 func locationCheck() bool {
 	// Check if program is in the right directory by checking if info.vdf exists
 	if _, err := os.Stat("info.vdf"); err == nil { // Handle file already exists
+		if curDir, err = os.Getwd(); err != nil {
+			fmt.Print("Error getting working directory:", err)
+			return false
+		}
 		return true
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fmt.Println("Log-Base Generator is in the wrong location.\nPlease put it in your HUD's root directory, where info.vdf is located.")
