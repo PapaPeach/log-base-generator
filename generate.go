@@ -108,8 +108,9 @@ func generateMainConfig() {
 
 	// Create log_open alias
 	file.WriteString("//Open log for writing alias\n")
-	file.WriteString("alias lb_log_selection_open \"sixense_clear_bindings;sixense_write_bindings " + prefix + "_customization_selection.txt;con_timestamp 0;con_logfile cfg/" + prefix + "_customization_selection.txt\"\n")
-	file.WriteString("alias lb_log_customization_open \"sixense_clear_bindings;sixense_write_bindings " + prefix + "_customizations.txt;con_timestamp 0;con_logfile cfg/" + prefix + "_customizations.txt\"\n")
+	file.WriteString("alias lb_log_selection_open \"sixense_clear_bindings;sixense_write_bindings huds/" + prefix + "_customization_selection.txt;con_timestamp 0;con_logfile cfg/huds/" + prefix + "_customization_selection.txt\"\n")
+	file.WriteString("alias lb_log_customization_open \"sixense_clear_bindings;sixense_write_bindings huds/" + prefix + "_customizations.txt;con_timestamp 0;con_logfile cfg/huds/" + prefix + "_customizations.txt\"\n")
+	file.WriteString("alias lb_mkdir \"host_writeconfig _" + prefix + "_user_backup full;ds_dir cfg/huds;ds_log 0;ds_record;ds_stop;exec _" + prefix + "_user_backup\"\n")
 	file.WriteString("\n")
 
 	// Iterate through customizations and create save aliases
@@ -174,9 +175,9 @@ func generateMainConfig() {
 		}
 	}
 
-	// TODO: Call mkdir
 	// Generate aliases to execute commands in order so that no first run config is necessary
 	file.WriteString("\n//Load customizations to memory\n")
+	file.WriteString("lb_mkdir\n")
 	file.WriteString("exec " + prefix + "_customization_selection.txt\n")
 	file.WriteString("exec " + prefix + "_save\n")
 	file.WriteString("exec " + prefix + "_generate\n")
@@ -218,6 +219,7 @@ func generateSaveConfig() {
 			fmt.Println()
 			return
 		}
+		fmt.Println()
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fileExists = false
 	} else { // Oh shit
@@ -286,6 +288,7 @@ func generateGeneratorConfig() {
 			fmt.Println()
 			return
 		}
+		fmt.Println()
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fileExists = false
 	} else { // Oh shit
@@ -359,6 +362,7 @@ func generateValveRc() {
 			fmt.Println()
 			return
 		}
+		fmt.Println()
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fileExists = false
 	} else { // Oh shit
@@ -421,6 +425,7 @@ func generateButtonCommands() {
 			fmt.Println()
 			return
 		}
+		fmt.Println()
 	} else if errors.Is(err, os.ErrNotExist) { // Create fresh file
 		fileExists = false
 	} else { // Oh shit
@@ -467,7 +472,7 @@ func getBasePath(c int) string {
 		basePath += "../"
 	}
 	// Append with path to customizations file
-	basePath += "cfg/" + prefix + "_customizations.txt"
+	basePath += "cfg/huds/" + prefix + "_customizations.txt"
 
 	return basePath
 }
