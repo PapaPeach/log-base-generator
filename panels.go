@@ -35,6 +35,7 @@ func getPanel() []string {
 	for scnr.Scan() {
 		line := scnr.Text()
 		words := strings.Fields(line)
+		wordCounter := 0
 
 		for _, word := range words {
 			// Go to next line if commented
@@ -46,7 +47,7 @@ func getPanel() []string {
 				panels = append(panels, prevWord)
 				levels = append(levels, level)
 				level++
-			} else if strings.EqualFold(word, panel) || strings.EqualFold(word, "\""+panel+"\"") { // Check if panel matches current word
+			} else if wordCounter == 0 && (strings.EqualFold(word, panel) || strings.EqualFold(word, "\""+panel+"\"")) { // Check if panel matches current word
 				panel = word // Set panel var to actual panel title
 				count++
 			} else if word == `}` || strings.HasSuffix(word, "}") { // Manage lower nested level
@@ -54,6 +55,7 @@ func getPanel() []string {
 			}
 
 			prevWord = word
+			wordCounter++
 		}
 	}
 

@@ -9,6 +9,16 @@ import (
 	"strings"
 )
 
+func checkCfg() {
+	// Check if cfg directory exists, if not make it
+	if _, err := os.Stat("cfg"); os.IsNotExist(err) {
+		err := os.Mkdir("cfg", os.ModeDir)
+		if err != nil {
+			fmt.Println("Error creating cfg directory: ", err)
+		}
+	}
+}
+
 func copyFile(file string) []string {
 	// Open file
 	inputFile, err := os.Open(file)
@@ -183,7 +193,7 @@ func generateMainConfig() {
 	file.WriteString("exec " + prefix + "_generate\n")
 
 	// Main config file already exists and user opted to append log-base to the top of it
-	if fileExists == true && appendToTop {
+	if fileExists && appendToTop {
 		file.WriteString("\n//User contents\n")
 		pasteFile(file, fileContents)
 	}
@@ -252,7 +262,7 @@ func generateSaveConfig() {
 	file.WriteString("con_logfile \"\"")
 
 	// Save config file already exists and user opted to append log-base to the top of it
-	if fileExists == true && appendToTop {
+	if fileExists && appendToTop {
 		file.WriteString("\n\n//User contents\n")
 		pasteFile(file, fileContents)
 	}
@@ -326,7 +336,7 @@ func generateGeneratorConfig() {
 	file.WriteString("con_logfile \"\"")
 
 	// Generator config file already exists and user opted to append log-base to the top of it
-	if fileExists == true && appendToTop {
+	if fileExists && appendToTop {
 		file.WriteString("\n\n//User contents\n")
 		pasteFile(file, fileContents)
 	}
@@ -389,7 +399,7 @@ func generateValveRc() {
 	file.WriteString("sv_unlockedchapters 99")
 
 	// Valve.rc already exists and user opted to append log-base to the top of it
-	if fileExists == true && appendToTop {
+	if fileExists && appendToTop {
 		file.WriteString("\n\n//User contents\n")
 		pasteFile(file, fileContents)
 	}
@@ -457,7 +467,7 @@ func generateButtonCommands() {
 	file.WriteString("\"command\"\t\t\"engine exec " + prefix + "_save;exec " + prefix + "_generate;hud_reloadscheme\"")
 
 	// Button commands file already exists and user opted to append log-base to the top of it
-	if fileExists == true && appendToTop {
+	if fileExists && appendToTop {
 		file.WriteString("\n\nUser contents\n")
 		pasteFile(file, fileContents)
 	}

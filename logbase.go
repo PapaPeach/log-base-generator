@@ -165,7 +165,7 @@ func main() {
 				} else { // Additional parameters
 					var tempTree []string
 					tempTree, getParamPassed = getParam(customizationTree)
-					if getParamPassed == true {
+					if getParamPassed {
 						for i := 0; i < len(customizations[customizationsCount].options); i++ {
 							customizations[customizationsCount].options[i] = append(customizations[customizationsCount].options[i], tempTree[len(tempTree)-1])
 						}
@@ -328,6 +328,9 @@ func main() {
 	}
 	fmt.Println()
 
+	// Create cfg directory if it doesn't already exist
+	checkCfg()
+
 	// Populate hud/cfg/_.cfg file
 	generateMainConfig()
 	generateSaveConfig()
@@ -338,7 +341,7 @@ func main() {
 	generateButtonCommands()
 
 	// Comment srcFile panel lines
-	if autoEdit == true {
+	if autoEdit {
 		editSource()
 	}
 
