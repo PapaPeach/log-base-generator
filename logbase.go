@@ -245,10 +245,9 @@ func main() {
 			failText := "is an invalid response. [Y] / [N]: "
 			response := getResponse(prompt, failText, options)
 			if response == "y" {
+				var siblingIndex int
 				if customizationsCount == 1 { // If there is only one possible sibling
-					customizations[0].siblings = append(customizations[0].siblings, customizationsCount)
-					// Indicate that current customization is a younger sibling
-					customizations[customizationsCount].siblings = append(customizations[customizationsCount].siblings, 0)
+					siblingIndex = 0
 				} else { // If the user needs to select from several possible siblings
 					prompt := fmt.Sprintf("Found %v possible siblings:", customizationsCount)
 					options := []map[string]string{}
@@ -260,9 +259,10 @@ func main() {
 					response := getResponse(prompt, failText, options)
 
 					// Assign to sibling accordingly
-					siblingIndex, err := strconv.Atoi(response)
+					var err error
+					siblingIndex, err = strconv.Atoi(response)
 					if err != nil {
-						fmt.Println("Error converting selection to int: ", err)
+						fmt.Println("Error converting selection to int:", err)
 						os.Exit(1)
 					}
 					siblingIndex--
@@ -270,9 +270,25 @@ func main() {
 					if len(customizations[siblingIndex].siblings) > 0 && customizations[siblingIndex].siblings[0] < siblingIndex {
 						siblingIndex = customizations[siblingIndex].siblings[0]
 					}
-					customizations[siblingIndex].siblings = append(customizations[siblingIndex].siblings, customizationsCount)
-					// Indicate that current customization is a younger sibling
-					customizations[customizationsCount].siblings = append(customizations[customizationsCount].siblings, siblingIndex)
+				}
+				// Assign sibling to eldest
+				customizations[siblingIndex].siblings = append(customizations[siblingIndex].siblings, customizationsCount)
+				// Indicate that current customization is a younger sibling
+				customizations[customizationsCount].siblings = append(customizations[customizationsCount].siblings, siblingIndex)
+
+				// Check for sibling option quantity mismatch
+				if len(customizations[siblingIndex].options) < len(customizations[customizationsCount].options) {
+					fmt.Printf("\n%v has %d options, while %v has %d options.\nThe program will only generate %d options.\n",
+						customizations[siblingIndex].customizationName, len(customizations[siblingIndex].options), customizations[customizationsCount].customizationName, len(customizations[customizationsCount].options), len(customizations[siblingIndex].options))
+				}
+				if len(customizations[siblingIndex].options) > len(customizations[customizationsCount].options) {
+					fmt.Printf("\n%v has %d options, while %v has %d options.\nThis would cause an index out of bounds error in generation, exiting program now.\n",
+						customizations[siblingIndex].customizationName, len(customizations[siblingIndex].options), customizations[customizationsCount].customizationName, len(customizations[customizationsCount].options))
+					fmt.Println("Press Enter to exit.")
+					anyKey, _ := reader.ReadString('\n')
+					if anyKey != "" {
+						os.Exit(0)
+					}
 				}
 			}
 		}
