@@ -119,6 +119,52 @@ func getResponse(prompt string, failText string, options []map[string]string) st
 	return ""
 }
 
+func getSibling() {
+	// Check if panel should be a sibling, only ask if customizationsCount >= 1
+	if customizationsCount > 0 {
+		prompt := fmt.Sprintf("Should %v be used in conjuntion with a previous panel customization? [Y] / [N]: ", customizations[customizationsCount].customizationName)
+		options := []map[string]string{
+			{"y": ""},
+			{"n": ""},
+		}
+		failText := "is an invalid response. [Y] / [N]: "
+		response := getResponse(prompt, failText, options)
+		if response == "y" {
+			var siblingIndex int
+			if customizationsCount == 1 { // If there is only one possible sibling
+				siblingIndex = 0
+			} else { // If the user needs to select from several possible siblings
+				prompt := fmt.Sprintf("Found %v possible siblings:", customizationsCount)
+				options := []map[string]string{}
+				// Incrementally create options of previous customization names
+				for i := range customizationsCount {
+					options = append(options, map[string]string{strconv.Itoa(i + 1): customizations[i].customizationName})
+				}
+				failText := fmt.Sprintf("is an invalid response. Please make a selection 1 - %v: ", customizationsCount)
+				response := getResponse(prompt, failText, options)
+
+				// Assign to sibling accordingly
+				var err error
+				siblingIndex, err = strconv.Atoi(response)
+				if err != nil {
+					fmt.Println("Error converting selection to int:", err)
+					os.Exit(1)
+				}
+				siblingIndex--
+				// Assign sibling to eldest sibling by detecting if selected customization has an older sibling
+				if len(customizations[siblingIndex].siblings) > 0 && customizations[siblingIndex].siblings[0] < siblingIndex {
+					siblingIndex = customizations[siblingIndex].siblings[0]
+				}
+			}
+			// Assign sibling to eldest
+			customizations[siblingIndex].siblings = append(customizations[siblingIndex].siblings, customizationsCount)
+			// Indicate that current customization is a younger sibling
+			customizations[customizationsCount].siblings = append(customizations[customizationsCount].siblings, siblingIndex)
+		}
+	}
+	fmt.Println()
+}
+
 func main() {
 	// Validate program location
 	if !locationCheck() {
@@ -131,6 +177,10 @@ func main() {
 	for !userDone {
 		// Create new customization
 		customizations = append(customizations, customization{})
+
+		// Check if panel should be sibling, and match numParam
+		getSibling()
+
 		// Validate source file
 		getSourceFilePassed := false
 		for !getSourceFilePassed {
@@ -178,13 +228,19 @@ func main() {
 			}
 
 			// Get total number of values
-			for numValues < 2 {
-				fmt.Print("Enter quantity of values to set: ")
-				fmt.Scanln(&numValues)
-				if numValues < 2 {
-					fmt.Println("Must set at least 2 values.")
+			if customizations[customizationsCount].siblings == nil { // Not a sibling
+				for numValues < 2 {
+					fmt.Print("Enter quantity of values to set: ")
+					fmt.Scanln(&numValues)
+					if numValues < 2 {
+						fmt.Println("Must set at least 2 values.")
+					}
 				}
+			} else { // If sibling, get quantity from eldest sibling
+				numValues = len(customizations[customizations[customizationsCount].siblings[0]].options)
+				fmt.Printf("Matching quantity of values to %v\n", customizations[customizations[customizationsCount].siblings[0]].customizationName)
 			}
+
 			// Get values
 			for i := 0; i < numValues; i++ {
 				if customizations[customizationsCount].numParam == 1 { // Only one parameter
@@ -197,6 +253,7 @@ func main() {
 			}
 
 			// Ask for more parameters
+			fmt.Println()
 			prompt := "Add more parameters to this customization? [Y] / [N]: "
 			options := []map[string]string{
 				{"y": ""},
@@ -206,7 +263,6 @@ func main() {
 			response := getResponse(prompt, failText, options)
 			if response == "y" {
 				customizations[customizationsCount].numParam++
-				fmt.Println()
 			} else if response == "n" {
 				moreParam = false
 			}
@@ -235,64 +291,6 @@ func main() {
 			}
 		}
 
-		// Check if panel should be a sibling, only ask if customizationsCount > 1
-		if customizationsCount > 0 {
-			prompt := fmt.Sprintf("Should %v be used in conjuntion with a previous panel customization? [Y] / [N]: ", customizations[customizationsCount].customizationName)
-			options := []map[string]string{
-				{"y": ""},
-				{"n": ""},
-			}
-			failText := "is an invalid response. [Y] / [N]: "
-			response := getResponse(prompt, failText, options)
-			if response == "y" {
-				var siblingIndex int
-				if customizationsCount == 1 { // If there is only one possible sibling
-					siblingIndex = 0
-				} else { // If the user needs to select from several possible siblings
-					prompt := fmt.Sprintf("Found %v possible siblings:", customizationsCount)
-					options := []map[string]string{}
-					// Incrementally create options of previous customization names
-					for i := range customizationsCount {
-						options = append(options, map[string]string{strconv.Itoa(i + 1): customizations[i].customizationName})
-					}
-					failText := fmt.Sprintf("is an invalid response. Please make a selection 1 - %v: ", customizationsCount)
-					response := getResponse(prompt, failText, options)
-
-					// Assign to sibling accordingly
-					var err error
-					siblingIndex, err = strconv.Atoi(response)
-					if err != nil {
-						fmt.Println("Error converting selection to int:", err)
-						os.Exit(1)
-					}
-					siblingIndex--
-					// Assign sibling to eldest sibling by detecting if selected customization has an older sibling
-					if len(customizations[siblingIndex].siblings) > 0 && customizations[siblingIndex].siblings[0] < siblingIndex {
-						siblingIndex = customizations[siblingIndex].siblings[0]
-					}
-				}
-				// Assign sibling to eldest
-				customizations[siblingIndex].siblings = append(customizations[siblingIndex].siblings, customizationsCount)
-				// Indicate that current customization is a younger sibling
-				customizations[customizationsCount].siblings = append(customizations[customizationsCount].siblings, siblingIndex)
-
-				// Check for sibling option quantity mismatch
-				if len(customizations[siblingIndex].options) < len(customizations[customizationsCount].options) {
-					fmt.Printf("\n%v has %d options, while %v has %d options.\nThe program will only generate %d options.\n",
-						customizations[siblingIndex].customizationName, len(customizations[siblingIndex].options), customizations[customizationsCount].customizationName, len(customizations[customizationsCount].options), len(customizations[siblingIndex].options))
-				}
-				if len(customizations[siblingIndex].options) > len(customizations[customizationsCount].options) {
-					fmt.Printf("\n%v has %d options, while %v has %d options.\nThis would cause an index out of bounds error in generation, exiting program now.\n",
-						customizations[siblingIndex].customizationName, len(customizations[siblingIndex].options), customizations[customizationsCount].customizationName, len(customizations[customizationsCount].options))
-					fmt.Println("Press Enter to exit.")
-					anyKey, _ := reader.ReadString('\n')
-					if anyKey != "" {
-						os.Exit(0)
-					}
-				}
-			}
-		}
-
 		// TODO: Set default parameter value
 
 		// TODO: Ask if user has more panels they'd like to edit in srcFile. Y = loop, N = break
@@ -308,7 +306,6 @@ func main() {
 		response := getResponse(prompt, failText, options)
 		if response == "y" { // Generate more log-base customizations
 			customizationsCount++
-			fmt.Println()
 		} else if response == "n" { // Proceed to rest of generation
 			userDone = true
 		}
