@@ -122,7 +122,7 @@ func getResponse(prompt string, failText string, options []map[string]string) st
 func getSibling() {
 	// Check if panel should be a sibling, only ask if customizationsCount >= 1
 	if customizationsCount > 0 {
-		prompt := fmt.Sprintf("Should %v be used in conjuntion with a previous panel customization? [Y] / [N]: ", customizations[customizationsCount].customizationName)
+		prompt := "Should this be used in conjuntion with a previous panel customization? [Y] / [N]: "
 		options := []map[string]string{
 			{"y": ""},
 			{"n": ""},
@@ -376,7 +376,7 @@ func main() {
 			autoEdit = true
 			editsConfirmed = true
 		} else if response == "n" { // Don't allow automated editing
-			prompt := ("You will need to manually handle removing customized source lines and adding #base paths or customizations will not work.\nConfirm? [Y] / [N]: ")
+			prompt := ("You will need to manually remove customized source lines and add #base paths for customizations to work.\nConfirm? [Y] / [N]: ")
 			options := []map[string]string{
 				{"y": ""},
 				{"n": ""},
