@@ -161,8 +161,8 @@ func getSibling() {
 			// Indicate that current customization is a younger sibling
 			customizations[customizationsCount].siblings = append(customizations[customizationsCount].siblings, siblingIndex)
 		}
+		fmt.Println()
 	}
-	fmt.Println()
 }
 
 func main() {

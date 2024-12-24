@@ -226,10 +226,22 @@ func getParam(tree []string) ([]string, bool) {
 func getValues(tree []string, curNum int, numValues int) []string {
 	// Get values
 	var value string
-	fmt.Printf("Enter value for %v (%v/%v): ", tree[len(tree)-1], curNum+1, numValues)
-	// Use buffered reader because Scanln sucks
-	value, _ = reader.ReadString('\n') // Read to newline
-	value = strings.TrimSpace(value)   // Remove newline
+
+	for len(value) < 1 {
+		fmt.Printf("Enter value for %v (%v/%v): ", tree[len(tree)-1], curNum+1, numValues)
+		// Use buffered reader because Scanln sucks
+		value, _ = reader.ReadString('\n') // Read to newline
+		value = strings.TrimSpace(value)   // Remove newline
+
+		// Check that value does not contain space
+		if len(value) < 1 {
+			fmt.Println("Invalid value. Values must contain something.")
+		} else if strings.Contains(value, " ") {
+			fmt.Printf("\"%v\" is an invalid value. Values cannot contain any spaces.\n", value)
+			fmt.Println("If this is a color or font value, create an appropriate definition in your ClientScheme.")
+			value = ""
+		}
+	}
 
 	// Add value to tree
 	tree = append(tree, value)
