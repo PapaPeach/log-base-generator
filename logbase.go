@@ -234,6 +234,17 @@ func main() {
 					fmt.Scanln(&numValues)
 					if numValues < 2 {
 						fmt.Println("Must set at least 2 values.")
+					} else if numValues > 9 { // Check for abnormally high numValues
+						prompt := fmt.Sprintf("Detected high quantity of values, this is not necessarily an error.\nConfirm generate %v values? [Y] / [N]: ", numValues)
+						options := []map[string]string{
+							{"y": ""},
+							{"n": ""},
+						}
+						failText := "is an invalid response. [Y] / [N]: "
+						response := getResponse(prompt, failText, options)
+						if response == "n" {
+							numValues = 0
+						}
 					}
 				}
 			} else { // If sibling, get quantity from eldest sibling

@@ -194,7 +194,7 @@ func generateMainConfig() {
 
 	// Main config file already exists and user opted to append log-base to the top of it
 	if fileExists && appendToTop {
-		file.WriteString("\n//User contents\n")
+		file.WriteString("\n")
 		pasteFile(file, fileContents)
 	}
 }
@@ -263,7 +263,7 @@ func generateSaveConfig() {
 
 	// Save config file already exists and user opted to append log-base to the top of it
 	if fileExists && appendToTop {
-		file.WriteString("\n\n//User contents\n")
+		file.WriteString("\n\n")
 		pasteFile(file, fileContents)
 	}
 }
@@ -337,7 +337,7 @@ func generateGeneratorConfig() {
 
 	// Generator config file already exists and user opted to append log-base to the top of it
 	if fileExists && appendToTop {
-		file.WriteString("\n\n//User contents\n")
+		file.WriteString("\n\n")
 		pasteFile(file, fileContents)
 	}
 }
@@ -400,7 +400,7 @@ func generateValveRc() {
 
 	// Valve.rc already exists and user opted to append log-base to the top of it
 	if fileExists && appendToTop {
-		file.WriteString("\n\n//User contents\n")
+		file.WriteString("\n\n")
 		pasteFile(file, fileContents)
 	}
 }
@@ -482,7 +482,7 @@ func generateButtonCommands() {
 
 	// Button commands file already exists and user opted to append log-base to the top of it
 	if fileExists && appendToTop {
-		file.WriteString("\n\nUser contents\n")
+		file.WriteString("\n\n")
 		pasteFile(file, fileContents)
 	}
 }
