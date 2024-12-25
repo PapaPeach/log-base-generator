@@ -1,5 +1,5 @@
 # Peaches' Log-Base Generator
-[![Video Showcase](https://img.youtube.com/vi/t0vj5CILqtY/hqdefault.jpg)](https://www.youtube.com/embed/t0vj5CILqtY)  
+[![Video Showcase](https://img.youtube.com/vi/t0vj5CILqtY/hqdefault.jpg)](https://youtu.be/t0vj5CILqtY)  
 A simple-ish CLI program intended to make in-game HUD customizations via log-base techniques more accessible. The program doesn't necessarily replace handwritten log-base customizations for more complex or more demanding customizations. Currently the Generator only supports direct log-base generation, if you'd like to learn what that means or learn more about how log-base works, checkout my writeup on it in the [Xhud Wiki](https://github.com/PapaPeach/xhud/wiki/Log-File-Customizations) or JarateKing's dive into [Basefile Script Integration](https://github.com/JarateKing/TF2-Hud-Reference/blob/master/1-APPENDIX/BasefileScriptIntegration.md).
 # Usage
 1. Make a backup of your HUD prior to running the generator.
