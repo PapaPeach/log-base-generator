@@ -40,4 +40,4 @@ Pull requests for feature additions are currently discouraged as the code is sti
 
 # Support Me
 My motivation for making this was simply to bring more HUDs with in-game customizations to the players of TF2, as I truly believe it is a massive UX improvement on other types of HUD customization implementations.  
-I've put a lot of time into this and don't plan to stop, so if you'd like to support that, **I accept donations via [Ko-fi](https://ko-fi.com/peachestv)**.
+I've put a lot of time into this and don't plan to stop, so if you'd like to support that, **I accept donations via [Ko-fi](https://ko-fi.com/peachestv) and [GitHub Sponsors](https://github.com/sponsors/PapaPeach)**.
