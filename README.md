@@ -37,3 +37,7 @@ Opening a GitHub issue for the Log-Base Generator is the easiest way for me to k
 # Pull Requests
 **Any pull request should have as narrow a scope as reasonably possible and have a single intention. In otherwards, fix one bug, typo, etc. per requests. Additionally, changes should be well documented in their methodology, effect, etc. if they would like to be considered.**  
 Pull requests for feature additions are currently discouraged as the code is still young and more likely than not going to be rewritten actively by me. Once the code has matured and stabalized I will begin considering feature additions and update the README to reflect this.
+
+# Support Me
+My motivation for making this was simply to bring more HUDs with in-game customizations to the players of TF2, as I truly believe it is a massive UX improvement on other types of HUD customization implementations.  
+I've put a lot of time into this and don't plan to stop, so if you'd like to support that, **I accept donations via [Ko-fi](https://ko-fi.com/peachestv)**.
