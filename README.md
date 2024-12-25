@@ -4,7 +4,7 @@ A simple-ish CLI program intended to make in-game HUD customizations via log-bas
 # Usage
 1. Make a backup of your HUD prior to running the generator.
    The generator won't edit any files without prompting you first, and it will never write over any file. But I can't guarantee the program will work as intended 100% of the time, so don't bank on it.
-2. Download the [latest release]() of the log-base generator.
+2. Download the [latest release](https://github.com/PapaPeach/log-base-generator/releases/tag/v0.0.0) of the log-base generator.
 3. Place the **log-base-generator.exe** in your HUD's root folder.
    (Where **info.vdf** is located).
 4. Run the executable and follow the prompts.
