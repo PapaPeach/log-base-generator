@@ -14,7 +14,7 @@ Currently there is no backwards navigation in the program, I recommend generatin
 
 # Reporting Issues
 **With any issue, details on the file you were trying to access and previous selections that led you there are helpful in recreating and remedying the issue.**  
-Opening a GitHub issue for the Log-Base Generator is the easiest way for me to keep track of issues to fix. Alternatively if there is an issue that needs addressing quickly, there will **soon** be a channel in my [Peaches' HUDs Discord](https://discord.gg/HyZRVtp) where you can report issues.
+Opening a GitHub issue for the Log-Base Generator is the easiest way for me to keep track of issues to fix. Alternatively if there is an issue that needs addressing quickly, you can report it in the **devtools-feedback** or **devtools-bugs** channels in the [Peaches' HUDs Discord](https://discord.gg/HyZRVtp).
 
 # Road Map
 |                    Feature                    | Description                                                                                                                                                                                                                                             |   Status   |
